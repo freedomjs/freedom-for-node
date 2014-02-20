@@ -5,6 +5,8 @@
 
 'use strict';
 
+global.Promise = require('es6-promise').Promise;
+
 var sources = [
   '/node_modules/freedom/src',
   '/providers/',
