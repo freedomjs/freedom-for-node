@@ -1,0 +1,23 @@
+{
+  "name": "freedom-runtime-node",
+  "description": "Embracing a distributed web",
+  "version": "0.0.1",
+  "homepage": "http://freedomjs.com",
+  "bugs": {
+    "url": "http://github.com/freedomjs/freedom-runtime-node/issues",
+    "email": "freedom@cs.washington.edu"
+  },
+  "contributors": [
+    "Will Scott <willscott@gmail.com> (https://wills.co.tt/)",
+    "Raymond Cheng <ryscheng@cs.washington.edu>"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/freedomjs/freedom-runtime-node"
+  },
+  "devDependencies": {},
+  "scripts": {},
+  "dependencies": {
+    "freedom": "~0.3.0"
+  }
+}
