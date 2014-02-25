@@ -60,8 +60,7 @@ module.exports.freedom = function(fdom, manifest) {
 
 if (!module.parent) {
   global.importScripts = function(script) {
-    console.warn('importing...' + script);
-    require(script.substr(7));
+    require(__dirname + '/' + script.substr(7));
   };
 
   global.freedom = fdom.setup(global, undefined, {
