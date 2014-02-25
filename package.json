@@ -18,7 +18,7 @@
   "devDependencies": {},
   "scripts": {},
   "dependencies": {
-    "freedom": "~0.3.0",
+    "freedom": "~0.3.1",
     "es6-promise": "~0.1.1"
   }
 }

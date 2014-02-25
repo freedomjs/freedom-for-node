@@ -23,11 +23,29 @@ sources.forEach(function(dir) {
 });
 
 fdom.resources.addResolver(function(manifest, url, resolve) {
-  if (manifest === 'node://') {
-    resolve(url);
-    return true;
+  var base;
+  if (manifest.indexOf('node://') !== 0) {
+    return false;
   }
-  return false;
+
+  base = manifest.substr(0, manifest.lastIndexOf("/"));
+  if (url.indexOf("/") === 0) {
+    resolve("node://" + url);
+  } else {
+    resolve(base + "/" + url);
+  }
+  return true;
+});
+
+fdom.resources.addRetriever('node', function(url, resolve, reject) {
+  var filename = url.substr(7);
+  require('fs').readFile(filename, function(err, data) {
+    if (err) {
+      reject(err);
+    } else {
+      resolve(data);
+    }
+  });
 });
 
 module.exports.freedom = function(fdom, manifest) {
@@ -39,3 +57,17 @@ module.exports.freedom = function(fdom, manifest) {
     manifest: manifest
   });
 }.bind(global, fdom);
+
+if (!module.parent) {
+  global.importScripts = function(script) {
+    console.warn('importing...' + script);
+    require(script.substr(7));
+  };
+
+  global.freedom = fdom.setup(global, undefined, {
+    portType: 'Node',
+    isApp: true,
+    stayLocal: true,
+    location: "node://"
+  });
+}

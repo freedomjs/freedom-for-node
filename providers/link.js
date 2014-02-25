@@ -29,10 +29,10 @@ fdom.link.Node = function() {
  * @private
  */
 fdom.link.Node.prototype.doEmit = function(msg) {
-  if (msg.data.tag === 'control') {
-    msg.data.tag = this.controlChannel;
+  if (msg.tag === 'control') {
+    msg.tag = this.controlChannel;
   }
-  this.emit(msg.data.tag, msg.data.msg);
+  this.emit(msg.tag, msg.msg);
 };
 
 /**
@@ -42,25 +42,23 @@ fdom.link.Node.prototype.doEmit = function(msg) {
  */
 fdom.link.Node.prototype.start = function() {
   if (this.config.appContext) {
-    console.warn(this.config.global);
-    this.obj = this.config.global;
-    this.config.global.addEventListener('message', this.doEmit.bind(this) , true);
+    this.obj = process;
+    this.obj.on('message', this.doEmit.bind(this) , true);
   } else {
-    this.obj = require('webworker-threads').Worker(function() {
-      var global = {
-        postMessage: postMessage,
-        addEventListener: addEventListener,
-        close: close
-      };
-      fdom.setup(global, undefined, {
-        isApp: true,
-        portType: 'Node'
-      });
+    console.warn('making child!');
+
+    this.obj = require('child_process').fork(__dirname + '/../index.js');
+    
+    this.obj.on('message', this.doEmit.bind(this) , true);
+    this.obj.on('close', function() {
+      delete this.obj;
+    }.bind(this));
+    this.obj.on('error', function(err) {
+      fdom.debug.error(err);
     });
-    this.obj.addEventListener('message', this.doEmit.bind(this) , true);
-    this.obj.thread.addEventListener('close', this.stop.bind(this), true);
+
+    this.emit('started');
   }
-  this.emit('started');
 };
 
 /**
@@ -69,10 +67,11 @@ fdom.link.Node.prototype.start = function() {
  * @private
  */
 fdom.link.Node.prototype.stop = function() {
-  if (this.obj.thread) {
-    this.obj.terminate();
+  if (this.config.appContext) {
+    process.exit();
   } else {
-    this.config.global.close();
+    this.obj.kill();
+    delete this.obj;
   }
 };
 
@@ -108,7 +107,7 @@ fdom.link.Node.prototype.onMessage = function(flow, message) {
         console.warn('<-[' + flow + '] ' + JSON.stringify(message));
       }
       */
-      this.obj.postMessage({tag: flow, msg: message});
+      this.obj.send({tag: flow, msg: message});
     } else {
       this.once('started', this.onMessage.bind(this, flow, message));
     }

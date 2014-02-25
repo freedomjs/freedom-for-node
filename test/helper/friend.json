@@ -1,0 +1,7 @@
+{
+  "name": "Test Module",
+  "description": "Test Module for testing node runtime",
+  "app": {
+    "script": "friend.js"
+  }
+}
