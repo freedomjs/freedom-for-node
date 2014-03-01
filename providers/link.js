@@ -15,24 +15,7 @@ fdom.link = fdom.link || {};
  * @constructor
  */
 fdom.link.Node = function() {
-  this.id = 'Link.Node ' + Math.random();
-  this.config = {};
-  this.src = null;
-
-  fdom.util.handleEvents(this);
-};
-
-/**
- * Emit a message from the other end of this port.
- * @method doEmit
- * @param {Event} msg
- * @private
- */
-fdom.link.Node.prototype.doEmit = function(msg) {
-  if (msg.tag === 'control') {
-    msg.tag = this.controlChannel;
-  }
-  this.emit(msg.tag, msg.msg);
+  fdom.Link.call(this);
 };
 
 /**
@@ -81,36 +64,28 @@ fdom.link.Node.prototype.stop = function() {
  * @return {String} the description of this port.
  */
 fdom.link.Node.prototype.toString = function() {
-  return "[" + this.id + "]";
+  return "[Node" + this.id + "]";
 };
 
 /**
  * Receive messages from the hub to this port.
  * Received messages will be emitted from the other side of the port.
- * @method onMessage
+ * @method deliverMessage
  * @param {String} flow the channel/flow of the message.
  * @param {Object} message The Message.
  */
-fdom.link.Node.prototype.onMessage = function(flow, message) {
-  if (flow === 'control' && !this.controlChannel) {
-    if (!this.controlChannel && message.channel) {
-      this.controlChannel = message.channel;
-      fdom.util.mixin(this.config, message.config);
-      this.start();
-    }
-  } else {
-    if (this.obj) {
-      /* //- For Debugging Purposes -
-      if (this === this.config.global.directLink) {
-        console.warn('->[' + flow + '] ' + JSON.stringify(message));
-      } else {
-        console.warn('<-[' + flow + '] ' + JSON.stringify(message));
-      }
-      */
-      this.obj.send({tag: flow, msg: message});
+fdom.link.Node.prototype.deliverMessage = function(flow, message) {
+  if (this.obj) {
+    /* //- For Debugging Purposes -
+    if (this === this.config.global.directLink) {
+      console.warn('->[' + flow + '] ' + JSON.stringify(message));
     } else {
-      this.once('started', this.onMessage.bind(this, flow, message));
+      console.warn('<-[' + flow + '] ' + JSON.stringify(message));
     }
+    */
+    this.obj.send({tag: flow, msg: message});
+  } else {
+    this.once('started', this.onMessage.bind(this, flow, message));
   }
 };
 
