@@ -26,17 +26,22 @@ fdom.link.Node = function() {
 fdom.link.Node.prototype.start = function() {
   if (this.config.appContext) {
     this.obj = process;
-    this.obj.on('message', this.emitMessage.bind(this) , true);
+    this.obj.on('message', function(msg) {
+      this.emitMessage(msg.tag, msg.msg);
+    }.bind(this), true);
   } else {
     console.warn('making child!');
 
     this.obj = require('child_process').fork(__dirname + '/../index.js');
     
-    this.obj.on('message', this.emitMessage.bind(this) , true);
+    this.obj.on('message', function(msg) {
+      this.emitMessage(msg.tag, msg.msg);
+    }.bind(this), true);
     this.obj.on('close', function() {
       delete this.obj;
     }.bind(this));
     this.obj.on('error', function(err) {
+      console.error(err);
       fdom.debug.error(err);
     });
 
@@ -77,7 +82,7 @@ fdom.link.Node.prototype.toString = function() {
 fdom.link.Node.prototype.deliverMessage = function(flow, message) {
   if (this.obj) {
     /* //- For Debugging Purposes -
-    if (this === this.config.global.directLink) {
+    if (!this.config.appContext) {
       console.warn('->[' + flow + '] ' + JSON.stringify(message));
     } else {
       console.warn('<-[' + flow + '] ' + JSON.stringify(message));
