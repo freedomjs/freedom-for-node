@@ -1,0 +1,10 @@
+{
+  "name": "Echo Server",
+  "description": "Echo server testing socket functionality",
+  "app": {
+    "script": "echo.js"
+  },
+  "permissions": [
+    "core.socket"
+  ]
+}
