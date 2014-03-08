@@ -9,17 +9,23 @@ global.Promise = require('es6-promise').Promise;
 
 var sources = [
   '/node_modules/freedom/src',
-  '/providers/',
   '/node_modules/freedom/src/proxy',
-  '/node_modules/freedom/interface'
+  '/node_modules/freedom/interface',
+  '/node_modules/freedom/providers/core/core.unprivileged.js',
+  '/providers/',
 ];
 
+var fs = require('fs');
 sources.forEach(function(dir) {
-  require('fs').readdirSync(__dirname + dir).forEach(function(file) {
-    if (file.match(/.+\.js/) !== null) {
-      require(__dirname + dir + '/' + file);
-    }
-  });
+  if (fs.lstatSync(__dirname + dir).isDirectory()) {
+    fs.readdirSync(__dirname + dir).forEach(function(file) {
+      if (file.match(/.+\.js/) !== null) {
+        require(__dirname + dir + '/' + file);
+      }
+    });
+  } else {
+    require(__dirname + dir);
+  }
 });
 
 fdom.resources.addResolver(function(manifest, url, resolve) {
