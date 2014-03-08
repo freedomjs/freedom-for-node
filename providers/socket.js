@@ -47,7 +47,8 @@ Socket_node.prototype.create = function(type, options, cb) {
 };
 
 Socket_node.prototype.write = function(socketId, data, callback) {
-  this.connections[socketId].write(data, 'utf8', callback);
+  var buffer = new Buffer(new Uint8Array(data));
+  this.connections[socketId].obj.write(buffer, 'utf8', callback);
 };
 
 Socket_node.prototype.getInfo = function(socketId, callback) {
@@ -93,7 +94,10 @@ Socket_node.prototype.connect = function(socketId, hostname, port, cb) {
   this.connections[socketId].obj = obj;
   this.connections[socketId].state = Socket_node.state.CONNECTING;
   this.connections[socketId].callback = cb;
-  
+  this.attachListeners(socketId, obj);
+};
+
+Socket_node.prototype.attachListeners = function(socketId, obj) {
   obj.on('data', this.onData.bind(this, socketId));
   obj.on('end', this.onEnd.bind(this, socketId));
   obj.on('timeout', this.onEnd.bind(this, socketId));
@@ -170,9 +174,10 @@ Socket_node.ERROR_MAP = {
  * @param {number} socketId The socket to read on.
  */
 Socket_node.prototype.onData = function(socketId, data) {
+  var arrayBuffer = new Uint8Array(data).buffer;
   this.dispatchEvent('onData', {
     socketId: socketId,
-    data: data
+    data: arrayBuffer
   });
 };
 
@@ -193,7 +198,7 @@ Socket_node.prototype.listen = function(socketId, address, port, callback) {
   var obj = this.net.createServer();
   this.connections[socketId].obj = obj;
   this.connections[socketId].callback = callback;
-  this.connections[socketId].state = Socket_node.state.LISTENING;
+  this.connections[socketId].state = Socket_node.state.BINDING;
 
   obj.on('error', this.onError.bind(this, socketId));
   obj.on('listening', this.onConnect.bind(this, socketId));
@@ -217,6 +222,7 @@ Socket_node.prototype.onAccept = function(socketId, connection) {
     'serverSocketId': socketId,
     'clientSocketId': id
   });
+  this.attachListeners(id, connection);
 };
 
 
