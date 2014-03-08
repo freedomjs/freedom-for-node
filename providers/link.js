@@ -26,13 +26,13 @@ fdom.link.Node = function() {
 fdom.link.Node.prototype.start = function() {
   if (this.config.appContext) {
     this.obj = process;
-    this.obj.on('message', this.doEmit.bind(this) , true);
+    this.obj.on('message', this.emitMessage.bind(this) , true);
   } else {
     console.warn('making child!');
 
     this.obj = require('child_process').fork(__dirname + '/../index.js');
     
-    this.obj.on('message', this.doEmit.bind(this) , true);
+    this.obj.on('message', this.emitMessage.bind(this) , true);
     this.obj.on('close', function() {
       delete this.obj;
     }.bind(this));
@@ -64,7 +64,7 @@ fdom.link.Node.prototype.stop = function() {
  * @return {String} the description of this port.
  */
 fdom.link.Node.prototype.toString = function() {
-  return "[Node" + this.id + "]";
+  return "[NodeLink " + this.id + "]";
 };
 
 /**
