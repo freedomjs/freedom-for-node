@@ -27,6 +27,7 @@ fdom.link.Node.prototype.start = function() {
   if (this.config.appContext) {
     this.obj = process;
     this.obj.on('message', function(msg) {
+      this.fix(msg.msg);
       this.emitMessage(msg.tag, msg.msg);
     }.bind(this), true);
   } else {
@@ -35,6 +36,7 @@ fdom.link.Node.prototype.start = function() {
     this.obj = require('child_process').fork(__dirname + '/../index.js');
     
     this.obj.on('message', function(msg) {
+      this.fix(msg.msg);
       this.emitMessage(msg.tag, msg.msg);
     }.bind(this), true);
     this.obj.on('close', function() {
@@ -88,9 +90,31 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
       console.warn('<-[' + flow + '] ' + JSON.stringify(message));
     }
     */
+
+    // Convert binary blobs into native buffers pre-send
+    if (message && message.message && message.message.binary) {
+      var out = [], i = 0;
+      for (i = 0; i < message.message.binary.length; i += 1) {
+        out.push(new Buffer(new Uint8Array(message.message.binary[i])));
+      }
+      message.message.binary = out;
+    }
     this.obj.send({tag: flow, msg: message});
   } else {
     this.once('started', this.onMessage.bind(this, flow, message));
+  }
+};
+
+/**
+ * Rewrite node buffers back to array buffers.
+ */
+fdom.link.Node.prototype.fix = function(message) {
+  if (message && message.message && message.message.binary) {
+    var out = [], i = 0;
+    for (i = 0; i < message.message.binary.length; i += 1) {
+      out.push(new Uint8Array(message.message.binary[i]).buffer);
+    }
+    message.message.binary = out;
   }
 };
 
