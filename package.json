@@ -1,10 +1,10 @@
 {
-  "name": "freedom-runtime-node",
+  "name": "freedom-for-node",
   "description": "Embracing a distributed web",
   "version": "0.0.2",
-  "homepage": "http://freedomjs.com",
+  "homepage": "http://freedomjs.org",
   "bugs": {
-    "url": "http://github.com/freedomjs/freedom-runtime-node/issues",
+    "url": "http://github.com/freedomjs/freedom-for-node/issues",
     "email": "freedom@cs.washington.edu"
   },
   "contributors": [
@@ -13,12 +13,12 @@
   ],
   "repository": {
     "type": "git",
-    "url": "https://github.com/freedomjs/freedom-runtime-node"
+    "url": "https://github.com/freedomjs/freedom-for-node"
   },
   "devDependencies": {},
   "scripts": {},
   "dependencies": {
-    "freedom": "~0.4.0",
+    "freedom": "~0.4.4",
     "es6-promise": "~0.1.1",
     "json-store": "0.0.1"
   }
