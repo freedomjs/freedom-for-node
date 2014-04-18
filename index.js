@@ -59,14 +59,18 @@ module.exports.freedom = function(fdom, manifest) {
     portType: 'Node',
     isApp: false,
     stayLocal: true,
-    location: "node://",
+    location: "node://" + module.parent.filename,
     manifest: manifest
   });
 }.bind(global, fdom);
 
 if (!module.parent) {
   global.importScripts = function(script) {
-    require(__dirname + '/' + script.substr(7));
+    try {
+      require(script.substr(7));
+    } catch(e) {
+      console.error('failed to load ' + script, e);
+    }
   };
 
   global.freedom = fdom.setup(global, undefined, {

@@ -5,6 +5,6 @@
     "script": "echo.js"
   },
   "permissions": [
-    "core.socket"
+    "core.tcpsocket"
   ]
 }
