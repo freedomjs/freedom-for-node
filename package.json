@@ -18,12 +18,12 @@
   "devDependencies": {},
   "scripts": {},
   "dependencies": {
-    "freedom": "~0.4.4",
+    "freedom": "~0.4.6",
     "es6-promise": "~0.1.1",
     "json-store": "0.0.1",
     "wrtc": "0.0.15"
   },
   "peerDependencies": {
-    "freedom": "~0.4.4"
+    "freedom": "~0.4.6"
   }
 }
