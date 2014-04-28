@@ -31,8 +31,6 @@ fdom.link.Node.prototype.start = function() {
       this.emitMessage(msg.tag, msg.msg);
     }.bind(this), true);
   } else {
-    console.warn('making child!');
-
     this.obj = require('child_process').fork(__dirname + '/../index.js');
 
     this.obj.on('message', function(msg) {
