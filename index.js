@@ -54,14 +54,14 @@ fdom.resources.addRetriever('node', function(url, resolve, reject) {
   });
 });
 
-module.exports.freedom = function(fdom, manifest) {
-  return fdom.setup(global, undefined, {
+module.exports.freedom = function(fdom, manifest, options) {
+  return fdom.setup(global, undefined, fdom.util.mixin({
     portType: 'Node',
     isApp: false,
     stayLocal: true,
     location: "node://" + module.parent.filename,
     manifest: manifest
-  });
+  }, options));
 }.bind(global, fdom);
 
 if (!module.parent) {
