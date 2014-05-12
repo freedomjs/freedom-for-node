@@ -48,7 +48,7 @@ fdom.resources.addRetriever('node', function(url, resolve, reject) {
 module.exports.freedom = function(fdom, manifest, options) {
   return fdom.setup(global, undefined, fdom.util.mixin({
     portType: 'Node',
-    isApp: false,
+    isModule: false,
     stayLocal: true,
     location: "node://" + module.parent.filename,
     manifest: manifest
@@ -66,7 +66,7 @@ if (!module.parent) {
 
   global.freedom = fdom.setup(global, undefined, {
     portType: 'Node',
-    isApp: true,
+    isModule: true,
     stayLocal: true,
     location: "node://"
   });

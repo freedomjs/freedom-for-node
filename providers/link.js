@@ -24,7 +24,7 @@ fdom.link.Node = function() {
  * @private
  */
 fdom.link.Node.prototype.start = function() {
-  if (this.config.appContext) {
+  if (this.config.moduleContext) {
     this.obj = process;
     this.obj.on('message', function(msg) {
       this.fix(msg.msg);
@@ -55,7 +55,7 @@ fdom.link.Node.prototype.start = function() {
  * @private
  */
 fdom.link.Node.prototype.stop = function() {
-  if (this.config.appContext) {
+  if (this.config.moduleContext) {
     process.exit();
   } else {
     this.obj.kill();
@@ -82,7 +82,7 @@ fdom.link.Node.prototype.toString = function() {
 fdom.link.Node.prototype.deliverMessage = function(flow, message) {
   if (this.obj) {
     /* //- For Debugging Purposes -
-    if (!this.config.appContext) {
+    if (!this.config.moduleContext) {
       console.warn('->[' + flow + '] ' + JSON.stringify(message));
     } else {
       console.warn('<-[' + flow + '] ' + JSON.stringify(message));
