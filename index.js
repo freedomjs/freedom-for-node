@@ -7,25 +7,16 @@
 
 global.Promise = require('es6-promise').Promise;
 
-var sources = [
-  '/node_modules/freedom/src',
-  '/node_modules/freedom/src/proxy',
-  '/node_modules/freedom/interface',
-  '/node_modules/freedom/providers/core/core.unprivileged.js',
-  '/providers/',
-];
+var fileInfo = require('freedom'),
+    glob = require('glob');
 
-var fs = require('fs');
-sources.forEach(function(dir) {
-  if (fs.lstatSync(__dirname + dir).isDirectory()) {
-    fs.readdirSync(__dirname + dir).forEach(function(file) {
-      if (file.match(/.+\.js/) !== null) {
-        require(__dirname + dir + '/' + file);
-      }
-    });
-  } else {
-    require(__dirname + dir);
-  }
+fileInfo.FILES.src.forEach(function(dir) {
+  glob.sync(fileInfo.baseName + '/' +  dir).forEach(function(file) {
+    require(file);
+  });
+});
+glob.sync('providers/*.js').forEach(function(file) {
+  require('./' + file);
 });
 
 fdom.resources.addResolver(function(manifest, url, resolve) {
