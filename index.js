@@ -10,7 +10,8 @@ global.Promise = require('es6-promise').Promise;
 var fileInfo = require('freedom'),
     glob = require('glob');
 
-fileInfo.FILES.src.forEach(function(dir) {
+fileInfo.FILES.srcCore.concat(
+    fileInfo.FILES.srcPlatform).forEach(function(dir) {
   glob.sync(fileInfo.baseName + '/' +  dir).forEach(function(file) {
     require(file);
   });
