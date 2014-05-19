@@ -1,12 +1,12 @@
 /*globals require,fdom:true*/
-/*jslint indent:2,white:true,sloppy:true */
+/*jslint indent:2,white:true,sloppy:true,node:true,nomen:true */
 
 /**
  * A storage provider using node and the json-store module.
  * @constructor
  */
 var Storage_node = function(channel, dispatch) {
-  this.store = require('json-store')('freedomjs-storage.json');
+  this.store = require('json-store')(__dirname + '/freedomjs-storage.json');
   this.dispatchEvents = dispatch;
   this.channel = channel;
 };

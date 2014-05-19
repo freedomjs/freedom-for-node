@@ -1,7 +1,7 @@
 {
   "name": "freedom-for-node",
   "description": "Embracing a distributed web",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "homepage": "http://freedomjs.org",
   "bugs": {
     "url": "http://github.com/freedomjs/freedom-for-node/issues",
@@ -18,7 +18,7 @@
   "devDependencies": {},
   "scripts": {},
   "dependencies": {
-    "freedom": "~0.4.7",
+    "freedom": "~0.4.9",
     "es6-promise": "~0.1.1",
     "json-store": "0.0.1",
     "glob": "~3.2.9"
@@ -27,6 +27,6 @@
     "wrtc": "0.0.15"
   },
   "peerDependencies": {
-    "freedom": "~0.4.7"
+    "freedom": "~0.4.9"
   }
 }
