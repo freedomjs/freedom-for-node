@@ -1,6 +1,7 @@
 freedom-for-node
 ====================
 
+[![Build Status](https://travis-ci.org/freedomjs/freedom-for-node.svg?branch=master)](https://travis-ci.org/freedomjs/freedom-for-node)
 A freedom.js Distribution for inclusion by Node.js.
 
 Installation
