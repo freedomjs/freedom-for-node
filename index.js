@@ -16,8 +16,8 @@ fileInfo.FILES.srcCore.concat(
     require(file);
   });
 });
-glob.sync('providers/*.js').forEach(function(file) {
-  require('./' + file);
+glob.sync(__dirname + '/providers/*.js').forEach(function(file) {
+  require(file);
 });
 
 fdom.resources.addResolver(function(manifest, url, resolve) {
