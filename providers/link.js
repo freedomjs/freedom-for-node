@@ -25,25 +25,34 @@ fdom.link.Node = function() {
  */
 fdom.link.Node.prototype.start = function() {
   if (this.config.moduleContext) {
-    this.obj = process;
-    this.obj.on('message', function(msg) {
-      this.fix(msg.msg);
-      this.emitMessage(msg.tag, msg.msg);
-    }.bind(this), true);
+    this.deliverMessage = function(flow, msg) {
+      freedomTransmit(flow, msg);
+    };
+    freedomReceive(this.emitMessage.bind(this));
   } else {
-    this.obj = require('child_process').fork(__dirname + '/../index.js');
+    // create API
+    var api = "../lib/api.js";
 
-    this.obj.on('message', function(msg) {
-      this.fix(msg.msg);
-      this.emitMessage(msg.tag, msg.msg);
-    }.bind(this), true);
-    this.obj.on('close', function() {
-      delete this.obj;
+    this.sandcastle = new require('sandcastle').SandCastle({
+      api: api
+    });
+    
+    // concatinate freedom into script.
+    var src = "";
+    
+    // Make the script.
+    this.obj = this.sandcastle.createScript(src, {});
+
+    this.obj.on("exit", function() {
+      delete this.sandcastle;
     }.bind(this));
-    this.obj.on('error', function(err) {
+
+    this.obj.on("error", function(err) {
       console.error(err);
       fdom.debug.error(err);
     });
+
+    this.obj.run('main');
 
     this.emit('started');
   }
@@ -55,10 +64,8 @@ fdom.link.Node.prototype.start = function() {
  * @private
  */
 fdom.link.Node.prototype.stop = function() {
-  if (this.config.moduleContext) {
-    process.exit();
-  } else {
-    this.obj.kill();
+  if (!this.config.moduleContext) {
+    this.obj.kickOverSandCastle();
     delete this.obj;
   }
 };
