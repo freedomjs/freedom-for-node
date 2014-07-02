@@ -8,11 +8,13 @@
 global.Promise = require('es6-promise').Promise;
 
 var fileInfo = require('freedom'),
-    glob = require('glob');
+    glob = require('glob'),
+    freedomPrefix = require.resolve('freedom').substr(0,
+        require.resolve('freedom').lastIndexOf('freedom') + 8);
 
 fileInfo.FILES.srcCore.concat(
     fileInfo.FILES.srcPlatform).forEach(function(dir) {
-  glob.sync(fileInfo.baseName + '/' +  dir).forEach(function(file) {
+  glob.sync(freedomPrefix + '/' +  dir).forEach(function(file) {
     require(file);
   });
 });
