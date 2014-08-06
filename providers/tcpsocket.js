@@ -39,8 +39,8 @@ TcpSocket_node.state = {
 TcpSocket_node.prototype.write = function(data, callback) {
   if (this.state !== TcpSocket_node.state.CONNECTED) {
     callback(undefined, {
-      errcode: "SOCKET_CLOSED",
-      message: "Cannot Write on non-connected Socket"
+      "errcode": "NOT_CONNECTED",
+      "message": "Cannot Write on Closed Socket"
     });
     return;
   }
@@ -75,7 +75,10 @@ TcpSocket_node.prototype.getInfo = function(callback) {
 TcpSocket_node.prototype.connect = function(hostname, port, cb) {
   if (this.state !== TcpSocket_node.state.NEW) {
     console.warn('Attempting to connect on in use socket');
-    return cb(false);
+    return cb(undefined, {
+      "errcode": "ALREADY_CONNECTED",
+      "message": "Cannot Connect Existing Socket"
+    });
   }
   
   this.connection = this.net.connect(port, hostname);
@@ -111,7 +114,7 @@ TcpSocket_node.prototype.onConnect = function() {
 TcpSocket_node.prototype.onError = function(error) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.callback(undefined, {
-      errcode: "SOCKET_CLOSED",
+      "errcode": "CONNECTION_FAILED",
       message: "Socket Error: " + error.message
     });
     delete this.callback;
@@ -133,8 +136,8 @@ TcpSocket_node.prototype.onError = function(error) {
 
 TcpSocket_node.prototype.onEnd = function(socketId) {
     this.dispatchEvent('onDisconnect', {
-      errcode: "SOCKET_CLOSED",
-      message: "Socket Closed"
+      errcode: 'CONNECTION_CLOSED',
+      message: 'Connection closed gracefully'
     });
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
@@ -182,8 +185,11 @@ TcpSocket_node.prototype.onData = function(data) {
  */
 TcpSocket_node.prototype.listen = function(address, port, callback) {
   if (this.state !== TcpSocket_node.state.NEW) {
-    console.warn('Attempting to listen on in use socket');
-    return callback(false);
+    callback(undefined, {
+      errcode: "ALREADY_CONNECTED",
+      message: "Cannot Listen on existing socket."
+    });
+    return;
   }
 
   this.connection = this.net.createServer();

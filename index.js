@@ -48,7 +48,8 @@ fdom.resources.addRetriever('node', function(url, resolve, reject) {
   });
 });
 
-module.exports.freedom = function(fdom, manifest, options) {
+module.exports.freedom = function(fdom, manifest, options, freedomcfg) {
+  if (typeof freedomcfg !== 'undefined') { freedomcfg(fdom.apis.register.bind(fdom.apis)); }
   return fdom.setup(global, undefined, fdom.util.mixin({
     portType: 'Node',
     isModule: false,
