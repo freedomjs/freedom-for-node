@@ -31,11 +31,10 @@ glob.sync(__dirname + '/providers/*.js').forEach(function(file) {
   require(file);
 });
 
-var src = "var window = {}; var self = {}; var fdom = {};\n";
+var src = fs.readFileSync("lib/moduleentry.js");
 files.forEach(function(file) {
   src += fs.readFileSync(file);
 });
-src += fs.readFileSync("lib/moduleentry.js");
 
 fdom.resources.addResolver(function(manifest, url, resolve) {
   var base;

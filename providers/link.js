@@ -26,9 +26,9 @@ fdom.link.Node = function() {
 fdom.link.Node.prototype.start = function() {
   if (this.config.moduleContext) {
     this.deliverMessage = function(flow, msg) {
-      freedomTransmit(flow, msg);
+      runTask('sendMessage', {flow: flow, msg: msg});
     };
-    freedomReceive(this.emitMessage.bind(this));
+    exports.onSendMessageTask = this.emitMessage.bind(this);
   } else {
     console.log('making link');
     // create API
@@ -44,7 +44,7 @@ fdom.link.Node.prototype.start = function() {
     var src = this.config.src;
     
     // Make the script.
-    this.obj = this.sandcastle.createScript(src, {});
+    this.obj = this.sandcastle.createScript(src);
     fdom.ob = this.obj;
 
     this.obj.on("exit", function(data) {
@@ -58,6 +58,8 @@ fdom.link.Node.prototype.start = function() {
     });
 
     this.obj.run('main');
+    this.obj.reset(); // clears time limit on execution.
+    console.log('sandbox running.');
 
     this.emit('started');
   }
@@ -92,6 +94,13 @@ fdom.link.Node.prototype.toString = function() {
  * @param {Object} message The Message.
  */
 fdom.link.Node.prototype.deliverMessage = function(flow, message) {
+  //- For Debugging Purposes -
+  if (!this.config.moduleContext) {
+    console.warn('->[' + flow + '] ' + JSON.stringify(message));
+  } else {
+    console.warn('<-[' + flow + '] ' + JSON.stringify(message));
+  }
+
   if(this.config.moduleContext) {
     // Convert binary blobs into native buffers pre-send
     if (message && message.message && message.message.binary) {
@@ -104,13 +113,6 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
 
     freedomTransmit(flow, message);
   } else if (this.obj) {
-    /* //- For Debugging Purposes -
-    if (!this.config.moduleContext) {
-      console.warn('->[' + flow + '] ' + JSON.stringify(message));
-    } else {
-      console.warn('<-[' + flow + '] ' + JSON.stringify(message));
-    }
-    */
     // Convert binary blobs into native buffers pre-send
     if (message && message.message && message.message.binary) {
       var out = [], i = 0;
