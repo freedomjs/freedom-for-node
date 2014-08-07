@@ -33,6 +33,7 @@
     "sandcastle": "^1.1.0"
   },
   "optionalDependencies": {
+    "buffertools": "~2.1.2",
     "wrtc": "0.0.20",
     "ws": "~0.4.31"
   },

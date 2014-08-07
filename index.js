@@ -5,7 +5,14 @@
 
 'use strict';
 
+var fs = require('fs');
+
 global.Promise = require('es6-promise').Promise;
+
+var files = [
+  require.resolve('es6-promise/dist/promise-1.0.0'),
+];
+
 
 var fileInfo = require('freedom'),
     glob = require('glob'),
@@ -15,12 +22,20 @@ var fileInfo = require('freedom'),
 fileInfo.FILES.srcCore.concat(
     fileInfo.FILES.srcPlatform).forEach(function(dir) {
   glob.sync(freedomPrefix + '/' +  dir).forEach(function(file) {
+    files.push(require.resolve(file));
     require(file);
   });
 });
 glob.sync(__dirname + '/providers/*.js').forEach(function(file) {
+  files.push(require.resolve(file));
   require(file);
 });
+
+var src = "var window = {}; var self = {}; var fdom = {};\n";
+files.forEach(function(file) {
+  src += fs.readFileSync(file);
+});
+src += fs.readFileSync("lib/moduleentry.js");
 
 fdom.resources.addResolver(function(manifest, url, resolve) {
   var base;
@@ -49,8 +64,10 @@ fdom.resources.addRetriever('node', function(url, resolve, reject) {
 });
 
 module.exports.freedom = function(fdom, manifest, options, freedomcfg) {
-  if (typeof freedomcfg !== 'undefined') { freedomcfg(fdom.apis.register.bind(fdom.apis)); }
-  return fdom.setup(global, undefined, fdom.util.mixin({
+  if (typeof freedomcfg !== 'undefined') {
+    freedomcfg(fdom.apis.register.bind(fdom.apis)); 
+  }
+  return fdom.setup(global, src, fdom.util.mixin({
     portType: 'Node',
     isModule: false,
     stayLocal: true,
@@ -58,20 +75,3 @@ module.exports.freedom = function(fdom, manifest, options, freedomcfg) {
     manifest: manifest
   }, options));
 }.bind(global, fdom);
-
-if (!module.parent) {
-  global.importScripts = function(script) {
-    try {
-      require(script.substr(7));
-    } catch(e) {
-      console.error('failed to load ' + script, e);
-    }
-  };
-
-  global.freedom = fdom.setup(global, undefined, {
-    portType: 'Node',
-    isModule: true,
-    stayLocal: true,
-    location: "node://"
-  });
-}

@@ -30,20 +30,25 @@ fdom.link.Node.prototype.start = function() {
     };
     freedomReceive(this.emitMessage.bind(this));
   } else {
+    console.log('making link');
     // create API
-    var api = "../lib/api.js";
+    var api = __dirname + "/../lib/api.js";
 
-    this.sandcastle = new require('sandcastle').SandCastle({
+    var SandCastle = require('sandcastle').SandCastle;
+    this.sandcastle = new SandCastle({
       api: api
     });
+    fdom.sc = this.sandcastle;
     
     // concatinate freedom into script.
-    var src = "";
+    var src = this.config.src;
     
     // Make the script.
     this.obj = this.sandcastle.createScript(src, {});
+    fdom.ob = this.obj;
 
-    this.obj.on("exit", function() {
+    this.obj.on("exit", function(data) {
+      console.log('sandcastle exited.', data);
       delete this.sandcastle;
     }.bind(this));
 
@@ -87,15 +92,7 @@ fdom.link.Node.prototype.toString = function() {
  * @param {Object} message The Message.
  */
 fdom.link.Node.prototype.deliverMessage = function(flow, message) {
-  if (this.obj) {
-    /* //- For Debugging Purposes -
-    if (!this.config.moduleContext) {
-      console.warn('->[' + flow + '] ' + JSON.stringify(message));
-    } else {
-      console.warn('<-[' + flow + '] ' + JSON.stringify(message));
-    }
-    */
-
+  if(this.config.moduleContext) {
     // Convert binary blobs into native buffers pre-send
     if (message && message.message && message.message.binary) {
       var out = [], i = 0;
@@ -104,6 +101,25 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
       }
       message.message.binary = out;
     }
+
+    freedomTransmit(flow, message);
+  } else if (this.obj) {
+    /* //- For Debugging Purposes -
+    if (!this.config.moduleContext) {
+      console.warn('->[' + flow + '] ' + JSON.stringify(message));
+    } else {
+      console.warn('<-[' + flow + '] ' + JSON.stringify(message));
+    }
+    */
+    // Convert binary blobs into native buffers pre-send
+    if (message && message.message && message.message.binary) {
+      var out = [], i = 0;
+      for (i = 0; i < message.message.binary.length; i += 1) {
+        out.push(new Buffer(new Uint8Array(message.message.binary[i])));
+      }
+      message.message.binary = out;
+    }
+
     this.obj.send({tag: flow, msg: message});
   } else {
     this.once('started', this.onMessage.bind(this, flow, message));
