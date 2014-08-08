@@ -194,7 +194,7 @@ TcpSocket_node.prototype.listen = function(address, port, callback) {
 
   this.connection = this.net.createServer();
   this.callback = callback;
-  this.state = Socket_node.state.BINDING;
+  this.state = TcpSocket_node.state.BINDING;
 
   this.connection.on('error', this.onError.bind(this));
   this.connection.on('listening', this.onConnect.bind(this));

@@ -25,11 +25,14 @@ fdom.link.Node = function() {
  */
 fdom.link.Node.prototype.start = function() {
   if (this.config.moduleContext) {
-    this.obj = process;
-    this.obj.on('message', function(msg) {
+
+    onMessage(function(msg) {
       this.fix(msg.msg);
       this.emitMessage(msg.tag, msg.msg);
-    }.bind(this), true);
+    }.bind(this));
+    this.obj = {
+      send: postMessage
+    };
   } else {
     this.obj = require('child_process').fork(__dirname + '/../index.js');
 

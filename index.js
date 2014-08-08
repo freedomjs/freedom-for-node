@@ -5,6 +5,11 @@
 
 'use strict';
 
+if (!module.parent) {
+  require(__dirname + '/lib/modulecontext');
+  return;
+}
+
 global.Promise = require('es6-promise').Promise;
 
 var fileInfo = require('freedom'),
@@ -58,20 +63,3 @@ module.exports.freedom = function(fdom, manifest, options, freedomcfg) {
     manifest: manifest
   }, options));
 }.bind(global, fdom);
-
-if (!module.parent) {
-  global.importScripts = function(script) {
-    try {
-      require(script.substr(7));
-    } catch(e) {
-      console.error('failed to load ' + script, e);
-    }
-  };
-
-  global.freedom = fdom.setup(global, undefined, {
-    portType: 'Node',
-    isModule: true,
-    stayLocal: true,
-    location: "node://"
-  });
-}
