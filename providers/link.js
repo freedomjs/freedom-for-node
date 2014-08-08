@@ -42,10 +42,13 @@ fdom.link.Node.prototype.start = function() {
     }.bind(this), true);
     this.obj.on('close', function() {
       delete this.obj;
+      this.emitMessage('control', {type: 'close'});
     }.bind(this));
     this.obj.on('error', function(err) {
       console.error(err);
       fdom.debug.error(err);
+      delete this.obj;
+      this.emitMessage('control', {type: 'close'});
     });
 
     this.emit('started');
