@@ -16,6 +16,7 @@ fdom.link = fdom.link || {};
  */
 fdom.link.Node = function() {
   fdom.Link.call(this);
+  this.queue = [];
 };
 
 /**
@@ -46,6 +47,16 @@ fdom.link.Node.prototype.start = function() {
     // Make the script.
     this.obj = this.sandcastle.createScript(src);
     fdom.ob = this.obj;
+
+    this.obj.on("task", function(err, options, method, cb) {
+      if (method == 'sendMessage' && options.flow) {
+        this.emitMessage(options.flow, options.msg);
+      }
+      if (this.queue.length) {
+        cb(this.queue);
+        this.queue = [];
+      }
+    }.bind(this));
 
     this.obj.on("exit", function(data) {
       console.log('sandcastle exited.', data);
@@ -111,7 +122,7 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
       message.message.binary = out;
     }
 
-    freedomTransmit(flow, message);
+    this.deliverMessage(flow, message);
   } else if (this.obj) {
     // Convert binary blobs into native buffers pre-send
     if (message && message.message && message.message.binary) {
@@ -122,7 +133,7 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
       message.message.binary = out;
     }
 
-    this.obj.send({tag: flow, msg: message});
+    this.queue.push({flow: flow, msg: message});
   } else {
     this.once('started', this.onMessage.bind(this, flow, message));
   }
