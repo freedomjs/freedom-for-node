@@ -27,7 +27,7 @@
   "dependencies": {
     "es5-shim": "^3.4.0",
     "es6-promise": "~1.0.0",
-    "freedom": "~0.5.3",
+    "freedom": "~0.5.6",
     "glob": "~4.0.2",
     "json-store": "0.0.1"
   },
