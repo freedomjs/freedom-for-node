@@ -113,12 +113,42 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
  * Rewrite node buffers back to array buffers.
  */
 fdom.link.Node.prototype.fix = function(message) {
+  if (message && message.message && message.message.message) {
+    message.message.message = this.replaceBuffers(message.message.message);
+    //console.log(message.message.message);
+  }
   if (message && message.message && message.message.binary) {
     var out = [], i = 0;
-    for (i = 0; i < message.message.binary.length; i += 1) {
+    for (i = 0; i < message.message.binary.length;i += 1) {
       out.push(new Uint8Array(message.message.binary[i]).buffer);
     }
     message.message.binary = out;
   }
 };
 
+fdom.link.Node.prototype.replaceBuffers = function(msg) {
+  if (typeof msg == 'object' && msg.byteLength) {
+    var retValue = msg;
+    try {
+      retValue = new ArrayBuffer(msg.byteLength);
+      var view = new Uint8Array(retValue);
+      for (var i=0; i<msg.byteLength; i++) {
+        view[i] = msg[i];
+      }
+    } catch (e) {
+      console.error("Failed to convert ArrayBuffer");
+    }
+    return retValue;
+  } else if (Array.isArray(msg)) {
+    return msg.map(this.replaceBuffers.bind(this));
+  } else if (typeof msg == 'object') {
+    for (var k in msg) {
+      if (msg.hasOwnProperty(k)) {
+        msg[k] = this.replaceBuffers(msg[k]);
+      }
+    }
+    return msg;
+  } else {
+    return msg;
+  }
+}
