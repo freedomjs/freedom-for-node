@@ -32,7 +32,6 @@
     "json-store": "0.0.1"
   },
   "optionalDependencies": {
-    "wrtc": "0.0.20",
     "ws": "~0.4.31"
   },
   "peerDependencies": {
