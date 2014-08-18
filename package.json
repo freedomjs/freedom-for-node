@@ -29,7 +29,8 @@
     "es6-promise": "~1.0.0",
     "freedom": "~0.5.6",
     "glob": "~4.0.2",
-    "json-store": "0.0.1"
+    "json-store": "0.0.1",
+    "tls-connect": "^0.2.2"
   },
   "optionalDependencies": {
     "ws": "~0.4.31"
