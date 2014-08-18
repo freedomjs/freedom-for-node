@@ -13,6 +13,7 @@
 var TcpSocket_node = function(channel, dispatchEvent, id) {
   this.dispatchEvent = dispatchEvent;
   this.net = require('net');
+  this.tlsconnect = require('tls-connect');
 
   this.state = TcpSocket_node.state.NEW;
 
@@ -36,6 +37,12 @@ TcpSocket_node.state = {
   LISTENING: 5
 };
 
+/**
+ * Write a buffer of data to the socket
+ * @method write
+ * @param {ArrayBuffer} data The data to write
+ * @param {Function} callback Function to call after completion or error.
+ */
 TcpSocket_node.prototype.write = function(data, callback) {
   if (this.state !== TcpSocket_node.state.CONNECTED) {
     callback(undefined, {
@@ -48,6 +55,11 @@ TcpSocket_node.prototype.write = function(data, callback) {
   this.connection.write(buffer, 'utf8', callback);
 };
 
+/**
+ * Get information about an active socket.
+ * @method getInfo
+ * @param {Function} callback function to call with socket info.
+ */
 TcpSocket_node.prototype.getInfo = function(callback) {
   if (this.state === TcpSocket_node.state.NEW) {
     return callback({
@@ -63,6 +75,33 @@ TcpSocket_node.prototype.getInfo = function(callback) {
       localPort: this.connection.localPort
     });
   }
+};
+
+/**
+ * Secure a socket, such that subsequent methods are sent over a TLS channel.
+ * @method secure
+ * @param {Function} callback function to call on completion or error.
+ */
+TcpSocket_node.prototype.secure = function(callback) {
+  if (this.state !== TcpSocket_node.state.CONNECTED) {
+    callback(undefined, {
+      "errcode": "NOT_CONNECTED",
+      "message": "Cannot secure closed socket"
+    });
+    return;
+  }
+  this.tlsconnect(this.connection, {}, function() {
+    if (!this.connection.authorized) {
+      this.connection.destroy();
+      this.state = TcpSocket_node.state.CLOSED;
+      callback(undefined, {
+        "errcode": "CONNECTION_RESET",
+        "message": "Failed to secure socket."
+      });
+    } else {
+      callback();
+    }
+  }.bind(this));
 };
 
 /**
