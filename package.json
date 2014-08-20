@@ -1,7 +1,7 @@
 {
   "name": "freedom-for-node",
   "description": "Embracing a distributed web",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "homepage": "http://freedomjs.org",
   "bugs": {
     "url": "http://github.com/freedomjs/freedom-for-node/issues",
@@ -36,6 +36,6 @@
     "ws": "~0.4.31"
   },
   "peerDependencies": {
-    "freedom": "^0.5.0"
+    "freedom": "~0.5.0"
   }
 }
