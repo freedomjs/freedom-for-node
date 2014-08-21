@@ -90,7 +90,12 @@ TcpSocket_node.prototype.secure = function(callback) {
     });
     return;
   }
-  this.tlsconnect(this.connection, {}, function() {
+  this.tlsconnect({
+        socket: this.connection,
+        rejectUnauthorized: true,
+        requestCert: true,
+        isServer: false
+    }, function() {
     if (!this.connection.authorized) {
       this.connection.destroy();
       this.state = TcpSocket_node.state.CLOSED;
