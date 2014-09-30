@@ -1,3 +1,5 @@
-freedom.on('message', function(msg) {
-  freedom.emit('message', 'got message: ' + msg);
+var iface = freedom();
+
+iface.on('message', function(msg) {
+  iface.emit('message', 'got message: ' + msg);
 });
