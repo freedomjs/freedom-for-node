@@ -1,11 +1,11 @@
-/*globals require,fdom:true, console */
+/*globals require, console */
 /*jslint indent:2,white:true,sloppy:true */
 
 /**
  * A freedom.js udp socket provider on Node Streams
  * @constructor
  * @private
- * @param {fdom.Port} channel the module creating this provider.
+ * @param {Port} channel the module creating this provider.
  * @param {Function} dispatchEvent Method for emitting events.
  */
 var UdpSocket_node = function(channel, dispatchEvent) {
@@ -146,6 +146,5 @@ UdpSocket_node.prototype.destroy = function(continuation) {
 };
 
 /** REGISTER PROVIDER **/
-if (typeof fdom !== 'undefined') {
-  fdom.apis.register("core.udpsocket", UdpSocket_node);
-}
+exports.provider = UdpSocket_node;
+exports.name = 'core.udpsocket';

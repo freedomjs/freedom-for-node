@@ -39,6 +39,5 @@ Storage_node.prototype.clear = function(continuation) {
 };
 
 /** REGISTER PROVIDER **/
-if (typeof fdom !== 'undefined') {
-  fdom.apis.register("core.storage", Storage_node);
-}
+exports.provider = Storage_node;
+exports.name = 'core.storage';

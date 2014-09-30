@@ -4,62 +4,58 @@
  */
 
 'use strict';
+var resolvers = [],
+  providers = [
+    require('freedom/providers/core/core.unprivileged'),
+    require('freedom/providers/core/echo.unprivileged'),
+    require('freedom/providers/core/logger.console'),
+    require('freedom/providers/core/peerconnection.unprivileged'),
+    require('freedom/providers/core/websocket.unprivileged'),
+    require('./providers/storage'),
+    require('./providers/tcpsocket'),
+    require('./providers/udpsocket')
+  ],
+  oauth = require('freedom/providers/core/oauth');
+
+providers.push(oauth);
 
 if (!module.parent) {
   require(__dirname + '/lib/modulecontext');
-  return;
-}
+} else {
+  global.Promise = require('es6-promise').Promise;
 
-global.Promise = require('es6-promise').Promise;
-
-var fileInfo = require('freedom'),
-    glob = require('glob'),
-    freedomPrefix = require.resolve('freedom').substr(0,
-        require.resolve('freedom').lastIndexOf('freedom') + 8);
-
-fileInfo.FILES.srcCore.concat(
-    fileInfo.FILES.srcPlatform).forEach(function(dir) {
-  glob.sync(freedomPrefix + '/' +  dir).forEach(function(file) {
-    require(file);
-  });
-});
-glob.sync(__dirname + '/providers/*.js').forEach(function(file) {
-  require(file);
-});
-
-fdom.resources.addResolver(function(manifest, url, resolve) {
-  var base;
-  if (manifest.indexOf('node://') !== 0) {
-    return false;
-  }
-
-  base = manifest.substr(0, manifest.lastIndexOf("/"));
-  if (url.indexOf("/") === 0) {
-    resolve("node://" + url);
-  } else {
-    resolve(base + "/" + url);
-  }
-  return true;
-});
-
-fdom.resources.addRetriever('node', function(url, resolve, reject) {
-  var filename = url.substr(7);
-  require('fs').readFile(filename, function(err, data) {
-    if (err) {
-      reject(err);
-    } else {
-      resolve(data);
+  resolvers.push({"resolver": function(manifest, url, resolve) {
+    var base;
+    if (manifest.indexOf('node://') !== 0) {
+      return false;
     }
-  });
-});
 
-module.exports.freedom = function(fdom, manifest, options, freedomcfg) {
-  if (typeof freedomcfg !== 'undefined') { freedomcfg(fdom.apis.register.bind(fdom.apis)); }
-  return fdom.setup(global, undefined, fdom.util.mixin({
-    portType: 'Node',
-    isModule: false,
-    stayLocal: true,
+    base = manifest.substr(0, manifest.lastIndexOf("/"));
+    if (url.indexOf("/") === 0) {
+      resolve("node://" + url);
+    } else {
+      resolve(base + "/" + url);
+    }
+    return true;
+  }});
+
+  resolvers.push({"proto": "node", "retriever": function(url, resolve, reject) {
+    var filename = url.substr(7);
+    // TODO: make sure resolved files are allowable.
+    require('fs').readFile(filename, function(err, data) {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(data);
+      }
+    });
+  }});
+
+  module.exports.freedom = require('freedom/src/entry').bind({}, {
     location: "node://" + module.parent.filename,
-    manifest: manifest
-  }, options));
-}.bind(global, fdom);
+    portType: require('./providers/link'),
+    providers: providers,
+    resolvers: resolvers,
+    isModule: false
+  });
+}

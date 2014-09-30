@@ -1,21 +1,19 @@
-/*globals fdom:true */
 /*jslint indent:2, white:true, node:true, sloppy:true */
-if (typeof fdom === 'undefined') {
-  fdom = {};
-}
-fdom.link = fdom.link || {};
+var Link = require('freedom/src/link');
 
 /**
  * A port providing message transport between two freedom contexts existing in
  * separate Node.js VMs.  Uses node's 'require("vm")' to generate a separate
- * namespace with a shared global object for communication.
- * @class Link.Node
- * @extends Port
+ * namespace with a shared global object for communication. The module-side
+ * implementation is in @see(lib/modulecontext.js)
+ * @class NodeLink
+ * @extends Link
  * @uses handleEvents
  * @constructor
  */
-fdom.link.Node = function() {
-  fdom.Link.call(this);
+var NodeLink = function(id, resource) {
+  Link.call(this, id, resource);
+  this.started = false;
 };
 
 /**
@@ -23,36 +21,27 @@ fdom.link.Node = function() {
  * @method start
  * @private
  */
-fdom.link.Node.prototype.start = function() {
-  if (this.config.moduleContext) {
+NodeLink.prototype.start = function() {
+  this.obj = require('child_process').fork(__dirname + '/../index.js');
 
-    onMessage(function(msg) {
-      this.fix(msg.msg);
-      this.emitMessage(msg.tag, msg.msg);
-    }.bind(this));
-    this.obj = {
-      send: postMessage
-    };
-  } else {
-    this.obj = require('child_process').fork(__dirname + '/../index.js');
-
-    this.obj.on('message', function(msg) {
-      this.fix(msg.msg);
-      this.emitMessage(msg.tag, msg.msg);
-    }.bind(this), true);
-    this.obj.on('close', function() {
-      delete this.obj;
-      this.emitMessage('control', {type: 'close'});
-    }.bind(this));
-    this.obj.on('error', function(err) {
-      console.error(err);
-      fdom.debug.error(err);
-      delete this.obj;
-      this.emitMessage('control', {type: 'close'});
-    });
-
-    this.emit('started');
-  }
+  this.obj.on('message', function(msg) {
+    if (!this.started) {
+      this.emit('started');
+      this.started = true;
+      return;
+    }
+    this.fix(msg.message);
+    this.emitMessage(msg.flow, msg.message);
+  }.bind(this), true);
+  this.obj.on('close', function() {
+    delete this.obj;
+    this.emitMessage('control', {type: 'close'});
+  }.bind(this));
+  this.obj.on('error', function(err) {
+    this.resource.debug.error(err);
+    delete this.obj;
+    this.emitMessage('control', {type: 'close'});
+  });
 };
 
 /**
@@ -60,7 +49,7 @@ fdom.link.Node.prototype.start = function() {
  * @method stop
  * @private
  */
-fdom.link.Node.prototype.stop = function() {
+NodeLink.prototype.stop = function() {
   if (this.config.moduleContext) {
     process.exit();
   } else {
@@ -74,7 +63,7 @@ fdom.link.Node.prototype.stop = function() {
  * @method toString
  * @return {String} the description of this port.
  */
-fdom.link.Node.prototype.toString = function() {
+NodeLink.prototype.toString = function() {
   return "[NodeLink " + this.id + "]";
 };
 
@@ -85,7 +74,7 @@ fdom.link.Node.prototype.toString = function() {
  * @param {String} flow the channel/flow of the message.
  * @param {Object} message The Message.
  */
-fdom.link.Node.prototype.deliverMessage = function(flow, message) {
+NodeLink.prototype.deliverMessage = function(flow, message) {
   if (this.obj) {
     /* //- For Debugging Purposes -
     if (!this.config.moduleContext) {
@@ -103,7 +92,7 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
       }
       message.message.binary = out;
     }
-    this.obj.send({tag: flow, msg: message});
+    this.obj.send({flow: flow, message: message});
   } else {
     this.once('started', this.onMessage.bind(this, flow, message));
   }
@@ -112,7 +101,7 @@ fdom.link.Node.prototype.deliverMessage = function(flow, message) {
 /**
  * Rewrite node buffers back to array buffers.
  */
-fdom.link.Node.prototype.fix = function(message) {
+NodeLink.prototype.fix = function(message) {
   if (message && message.message && message.message.message) {
     message.message.message = this.replaceBuffers(message.message.message);
     //console.log(message.message.message);
@@ -126,14 +115,14 @@ fdom.link.Node.prototype.fix = function(message) {
   }
 };
 
-fdom.link.Node.prototype.replaceBuffers = function(msg) {
-  if (typeof msg == 'object' && msg.byteLength) {
-    var retValue = msg;
+NodeLink.prototype.replaceBuffers = function(msg) {
+  var retValue, i;
+  if (typeof msg === 'object' && msg.byteLength) {
+    retValue = msg;
     try {
-      retValue = new ArrayBuffer(msg.byteLength);
-      var view = new Uint8Array(retValue);
-      for (var i=0; i<msg.byteLength; i++) {
-        view[i] = msg[i];
+      retValue = new Uint8Array(new ArrayBuffer(msg.byteLength));
+      for (i = 0; i < msg.byteLength; i+= 1) {
+        retValue[i] = msg[i];
       }
     } catch (e) {
       console.error("Failed to convert ArrayBuffer");
@@ -141,14 +130,16 @@ fdom.link.Node.prototype.replaceBuffers = function(msg) {
     return retValue;
   } else if (Array.isArray(msg)) {
     return msg.map(this.replaceBuffers.bind(this));
-  } else if (typeof msg == 'object') {
-    for (var k in msg) {
-      if (msg.hasOwnProperty(k)) {
-        msg[k] = this.replaceBuffers(msg[k]);
+  } else if (typeof msg === 'object') {
+    for (i in msg) {
+      if (msg.hasOwnProperty(i)) {
+        msg[i] = this.replaceBuffers(msg[i]);
       }
     }
     return msg;
   } else {
     return msg;
   }
-}
+};
+
+module.exports = NodeLink;

@@ -276,6 +276,5 @@ TcpSocket_node.prototype.close = function(continuation) {
 };
 
 /** REGISTER PROVIDER **/
-if (typeof fdom !== 'undefined') {
-  fdom.apis.register("core.tcpsocket", TcpSocket_node);
-}
+exports.provider = TcpSocket_node;
+exports.name = 'core.tcpsocket';

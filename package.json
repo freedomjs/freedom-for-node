@@ -27,7 +27,7 @@
   "dependencies": {
     "es5-shim": "^3.4.0",
     "es6-promise": "~1.0.0",
-    "freedom": "~0.5.6",
+    "freedom": "0.6.0-rc1",
     "glob": "~4.0.2",
     "json-store": "0.0.1",
     "tls-connect": "^0.2.2"
@@ -36,6 +36,6 @@
     "ws": "~0.4.31"
   },
   "peerDependencies": {
-    "freedom": "~0.5.0"
+    "freedom": "~0.6.0"
   }
 }
