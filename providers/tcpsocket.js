@@ -278,7 +278,12 @@ TcpSocket_node.prototype.onAccept = function(connection) {
  */
 TcpSocket_node.prototype.close = function(continuation) {
   if (this.connection) {
-    this.connection.end();
+    if (this.state === TcpSocket_node.state.BINDING ||
+        this.state === TcpSocket_node.state.LISTENING) {
+      this.connection.close();
+    } else {
+      this.connection.end();
+    }
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
   }

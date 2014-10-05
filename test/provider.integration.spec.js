@@ -12,7 +12,7 @@ websocket.setSocket(require('ws'), true);
 providers.push(websocket);
 
 testUtil.setCoreProviders(providers);
-testUtil.setModuleStrategy(require('../providers/link'));
+testUtil.setModuleStrategy(require('../providers/link'), undefined, 'error');
 
 describe("integration-single: social.loopback.json",
     require('freedom/spec/providers/social/social.single.integration.src').bind(this,
@@ -30,3 +30,7 @@ describe("integration: storage.isolated.json",
 describe("integration: storage.shared.json",
     require('freedom/spec/providers/storage/storage.integration.src').bind(this,
     "/providers/storage/shared/storage.shared.json", false));
+
+describe("integration: core.tcpsocket",
+    require('freedom/spec/providers/socket/tcpsocket.integration.src').bind(this,
+    require('../providers/tcpsocket')));
