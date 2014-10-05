@@ -20,6 +20,11 @@ Storage_node.prototype.get = function(key, continuation) {
   }
 };
 
+Storage_node.prototype.keys = function(continuation) {
+  var dict = this.store.get();
+  continuation(Object.keys(dict));
+};
+
 Storage_node.prototype.set = function(key, value, continuation) {
   var old = this.store.get(key);
   this.store.set(key, value);
