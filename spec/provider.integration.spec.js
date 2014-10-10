@@ -11,26 +11,28 @@ var websocket = require('freedom/providers/core/websocket.unprivileged');
 websocket.setSocket(require('ws'), true);
 providers.push(websocket);
 
-testUtil.setCoreProviders(providers);
-testUtil.setModuleStrategy(require('../providers/link'), undefined, 'error');
+var setup = function () {
+  testUtil.setCoreProviders(providers);
+  testUtil.setModuleStrategy(require('../providers/link'), undefined, 'error');
+};
 
 describe("integration-single: social.loopback.json",
     require('freedom/spec/providers/social/social.single.integration.src').bind(this,
-    "/providers/social/loopback/social.loopback.json"));
+    "/providers/social/loopback/social.loopback.json", setup));
 describe("integration-single: social.ws.json",
     require('freedom/spec/providers/social/social.single.integration.src').bind(this,
-    "/providers/social/websocket-server/social.ws.json"));
+    "/providers/social/websocket-server/social.ws.json", setup));
 describe("integration-double: social.ws.json",
     require('freedom/spec/providers/social/social.double.integration.src').bind(this,
-    "/providers/social/websocket-server/social.ws.json"));
+    "/providers/social/websocket-server/social.ws.json", setup));
 
 describe("integration: storage.isolated.json",
     require('freedom/spec/providers/storage/storage.integration.src').bind(this,
-    "/providers/storage/isolated/storage.isolated.json"));
+    "/providers/storage/isolated/storage.isolated.json", setup));
 describe("integration: storage.shared.json",
     require('freedom/spec/providers/storage/storage.integration.src').bind(this,
-    "/providers/storage/shared/storage.shared.json", false));
+    "/providers/storage/shared/storage.shared.json", setup, false));
 
 describe("integration: core.tcpsocket",
     require('freedom/spec/providers/socket/tcpsocket.integration.src').bind(this,
-    require('../providers/tcpsocket')));
+    require('../providers/tcpsocket'), setup));

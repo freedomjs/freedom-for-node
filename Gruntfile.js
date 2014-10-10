@@ -6,7 +6,7 @@ module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jasmine_node: {
-      integration: ['test']
+      integration: ['spec']
     },
     bump: {
       options: {
