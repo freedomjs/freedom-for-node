@@ -5,7 +5,7 @@ var providers = [
   require('freedom/providers/core/core.unprivileged'),
   require('freedom/providers/core/logger.console'),
 //  require('../../providers/core/peerconnection.unprivileged'),
-  require('../providers/storage')
+  require('../providers/core.storage')
 ];
 var websocket = require('freedom/providers/core/websocket.unprivileged');
 websocket.setSocket(require('ws'), true);
@@ -13,7 +13,7 @@ providers.push(websocket);
 
 var setup = function () {
   testUtil.setCoreProviders(providers);
-  testUtil.setModuleStrategy(require('../providers/link'), undefined, 'error');
+  testUtil.setModuleStrategy(require('../lib/link'), undefined, 'error');
 };
 
 describe("integration-single: social.loopback.json",
@@ -35,4 +35,4 @@ describe("integration: storage.shared.json",
 
 describe("integration: core.tcpsocket",
     require('freedom/spec/providers/coreIntegration/tcpsocket.integration.src').bind(this,
-    require('../providers/tcpsocket'), setup));
+    require('../providers/core.tcpsocket'), setup));

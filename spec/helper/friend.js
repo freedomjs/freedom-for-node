@@ -1,5 +1,5 @@
-var iface = freedom();
+var friend = freedom();
 
-iface.on('message', function(msg) {
-  iface.emit('message', 'got message: ' + msg);
+friend.on('message', function(msg) {
+  friend.emit('message', 'got message: ' + msg);
 });

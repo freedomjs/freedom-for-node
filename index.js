@@ -10,9 +10,9 @@ var resolvers = [],
     require('freedom/providers/core/echo.unprivileged'),
     require('freedom/providers/core/logger.console'),
     require('freedom/providers/core/peerconnection.unprivileged'),
-    require('./providers/storage'),
-    require('./providers/tcpsocket'),
-    require('./providers/udpsocket')
+    require('./providers/core.storage'),
+    require('./providers/core.tcpsocket'),
+    require('./providers/core.udpsocket')
   ],
   oauth = require('freedom/providers/core/oauth'),
   websocket = require('freedom/providers/core/websocket.unprivileged');
@@ -30,7 +30,7 @@ if (!module.parent) {
 
   module.exports.freedom = require('freedom/src/entry').bind({}, {
     location: "node://" + module.parent.filename,
-    portType: require('./providers/link'),
+    portType: require('./lib/link'),
     providers: providers,
     resolvers: resolvers,
     isModule: false
