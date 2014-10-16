@@ -11,7 +11,7 @@ pids
 logs
 results
 
-providers/freedomjs-storage.json
+freedomjs-database.json
 
 npm-debug.log
 node_modules

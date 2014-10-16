@@ -6,7 +6,7 @@
  * @constructor
  */
 var Storage_node = function(channel, dispatch) {
-  this.store = require('json-store')(__dirname + '/freedomjs-storage.json');
+  this.store = require('json-store')(__dirname + '/../freedomjs-database.json');
   this.dispatchEvents = dispatch;
   this.channel = channel;
 };
