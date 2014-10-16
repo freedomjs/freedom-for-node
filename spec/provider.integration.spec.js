@@ -34,5 +34,5 @@ describe("integration: storage.shared.json",
     "/providers/storage/shared/storage.shared.json", setup, false));
 
 describe("integration: core.tcpsocket",
-    require('freedom/spec/providers/socket/tcpsocket.integration.src').bind(this,
+    require('freedom/spec/providers/coreIntegration/tcpsocket.integration.src').bind(this,
     require('../providers/tcpsocket'), setup));
