@@ -78,6 +78,16 @@ TcpSocket_node.prototype.getInfo = function(callback) {
 };
 
 /**
+ * Prepares a socket for becoming secure, currently a no-op in node.
+ * Details at https://github.com/freedomjs/freedom/wiki/prepareSecure-API-Usage
+ * @method prepareSecure
+ * @param {Function} callback function to call on completion or error.
+ */
+TcpSocket_node.prototype.prepareSecure = function(callback) {
+  callback();
+};
+
+/**
  * Secure a socket, such that subsequent methods are sent over a TLS channel.
  * @method secure
  * @param {Function} callback function to call on completion or error.
