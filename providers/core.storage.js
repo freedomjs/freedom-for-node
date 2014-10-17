@@ -6,7 +6,7 @@
  * @constructor
  */
 var Storage_node = function(channel, dispatch) {
-  this.store = require('json-store')(__dirname + '/freedomjs-storage.json');
+  this.store = require('json-store')(__dirname + '/../freedomjs-database.json');
   this.dispatchEvents = dispatch;
   this.channel = channel;
 };
@@ -18,6 +18,11 @@ Storage_node.prototype.get = function(key, continuation) {
   } catch(e) {
     continuation(null);
   }
+};
+
+Storage_node.prototype.keys = function(continuation) {
+  var dict = this.store.get();
+  continuation(Object.keys(dict));
 };
 
 Storage_node.prototype.set = function(key, value, continuation) {

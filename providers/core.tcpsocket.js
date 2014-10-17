@@ -17,7 +17,7 @@ var TcpSocket_node = function(channel, dispatchEvent, id) {
 
   this.state = TcpSocket_node.state.NEW;
 
-  if (id && TcpSocket_node.unbound[id]) {
+  if (id !== undefined && TcpSocket_node.unbound[id]) {
     this.state = TcpSocket_node.state.CONNECTED;
     this.connection = TcpSocket_node.unbound[id];
     delete TcpSocket_node.unbound[id];
@@ -26,7 +26,7 @@ var TcpSocket_node = function(channel, dispatchEvent, id) {
 };
 
 TcpSocket_node.unbound = {};
-TcpSocket_node.unboundId = 0;
+TcpSocket_node.unboundId = 1;
 
 TcpSocket_node.state = {
   NEW: 0,
@@ -146,10 +146,10 @@ TcpSocket_node.prototype.attachListeners = function() {
   this.connection.on('end', this.onEnd.bind(this));
   this.connection.on('timeout', this.onEnd.bind(this));
   this.connection.on('error', this.onError.bind(this));
-  this.connection.on('connect', this.onConnect.bind(this));
+  this.connection.on('connect', this.onConnect.bind(this, 0));
 };
 
-TcpSocket_node.prototype.onConnect = function() {
+TcpSocket_node.prototype.onConnect = function(status) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.state = TcpSocket_node.state.CONNECTED;
   } else if (this.state === TcpSocket_node.state.BINDING) {
@@ -160,7 +160,7 @@ TcpSocket_node.prototype.onConnect = function() {
   }
 
   if (this.callback) {
-    this.callback(0);
+    this.callback(status);
     delete this.callback;
   }
 };
@@ -251,7 +251,7 @@ TcpSocket_node.prototype.listen = function(address, port, callback) {
   this.state = TcpSocket_node.state.BINDING;
 
   this.connection.on('error', this.onError.bind(this));
-  this.connection.on('listening', this.onConnect.bind(this));
+  this.connection.on('listening', this.onConnect.bind(this, undefined));
   this.connection.on('close', this.onEnd.bind(this));
   this.connection.on('connection', this.onAccept.bind(this));
 
@@ -259,13 +259,13 @@ TcpSocket_node.prototype.listen = function(address, port, callback) {
 };
 
 TcpSocket_node.prototype.onAccept = function(connection) {
-  var id = TcpSocket_node.unboundId++;
+  var id = TcpSocket_node.unboundId += 1;
   TcpSocket_node.unbound[id] = connection;
   
   this.dispatchEvent('onConnection', {
     'socket': id,
-    'host': connection.peerAddress,
-    'port': connection.peerPort
+    'host': connection.remoteAddress,
+    'port': connection.remotePort
   });
   //TODO: initial incoming data may be dropped if received before bound.
 };
@@ -278,7 +278,12 @@ TcpSocket_node.prototype.onAccept = function(connection) {
  */
 TcpSocket_node.prototype.close = function(continuation) {
   if (this.connection) {
-    this.connection.end();
+    if (this.state === TcpSocket_node.state.BINDING ||
+        this.state === TcpSocket_node.state.LISTENING) {
+      this.connection.close();
+    } else {
+      this.connection.end();
+    }
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
   }

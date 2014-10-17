@@ -1,4 +1,4 @@
-/*jslint indent:2,white:true,sloppy:true,node:true */
+/*jslint node:true */
 /*
  * freedom.js Node runtime
  */
@@ -10,50 +10,27 @@ var resolvers = [],
     require('freedom/providers/core/echo.unprivileged'),
     require('freedom/providers/core/logger.console'),
     require('freedom/providers/core/peerconnection.unprivileged'),
-    require('freedom/providers/core/websocket.unprivileged'),
-    require('./providers/storage'),
-    require('./providers/tcpsocket'),
-    require('./providers/udpsocket')
+    require('./providers/core.storage'),
+    require('./providers/core.tcpsocket'),
+    require('./providers/core.udpsocket')
   ],
-  oauth = require('freedom/providers/core/oauth');
+  oauth = require('freedom/providers/core/oauth'),
+  websocket = require('freedom/providers/core/websocket.unprivileged');
+
+websocket.setSocket(require('ws'), true);
 
 providers.push(oauth);
+providers.push(websocket);
 
 if (!module.parent) {
-  require(__dirname + '/lib/modulecontext');
+  require('./lib/modulecontext');
 } else {
   global.Promise = require('es6-promise').Promise;
-
-  resolvers.push({"resolver": function(manifest, url, resolve) {
-    var base;
-    if (manifest.indexOf('node://') !== 0) {
-      return false;
-    }
-
-    base = manifest.substr(0, manifest.lastIndexOf("/"));
-    if (url.indexOf("/") === 0) {
-      resolve("node://" + url);
-    } else {
-      resolve(base + "/" + url);
-    }
-    return true;
-  }});
-
-  resolvers.push({"proto": "node", "retriever": function(url, resolve, reject) {
-    var filename = url.substr(7);
-    // TODO: make sure resolved files are allowable.
-    require('fs').readFile(filename, function(err, data) {
-      if (err) {
-        reject(err);
-      } else {
-        resolve(data);
-      }
-    });
-  }});
+  require('./lib/resolvers')(resolvers);
 
   module.exports.freedom = require('freedom/src/entry').bind({}, {
     location: "node://" + module.parent.filename,
-    portType: require('./providers/link'),
+    portType: require('./lib/link'),
     providers: providers,
     resolvers: resolvers,
     isModule: false

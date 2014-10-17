@@ -10,7 +10,7 @@
     console.warn('running!');
 
     socket.listen('localhost', '8080');
-    socket.on('onConnect', function(acceptInfo) {
+    socket.on('onConnection', function(acceptInfo) {
       var child = freedom['core.tcpsocket'](acceptInfo.socket);
       child.on('onData', function(readInfo) {
         child.write(readInfo.data);
