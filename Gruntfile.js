@@ -28,13 +28,28 @@ module.exports = function(grunt) {
         // if the workspace is dirty, abort publishing (to avoid publishing local changes)
         abortIfDirty: true,
       }
-    }
+    },
+    prompt: {
+      tagMessage: {
+        options: {
+          questions: [
+            {
+              config: 'bump.options.tagMessage',
+              type: 'input',
+              message: 'Enter a git tag message:',
+              default: 'v%VERSION%',
+            }
+          ]
+        }
+      }
+    },
 
   });
 
   grunt.loadNpmTasks('grunt-jasmine-node');
   grunt.loadNpmTasks('grunt-npm');
   grunt.loadNpmTasks('grunt-bump');
+  grunt.loadNpmTasks('grunt-prompt');
 
   grunt.registerTask('test', [
   'jasmine_node'
@@ -45,6 +60,7 @@ module.exports = function(grunt) {
       arg = 'patch';
     }
     grunt.task.run([
+      'prompt:tagMessage',
       'bump:'+arg,
       'npm-publish'
     ]);

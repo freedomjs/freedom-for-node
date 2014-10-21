@@ -17,9 +17,10 @@
   },
   "devDependencies": {
     "grunt": "^0.4.5",
+    "grunt-bump": "0.0.15",
     "grunt-jasmine-node": "^0.2.1",
     "grunt-npm": "0.0.2",
-    "grunt-bump": "0.0.15"
+    "grunt-prompt": "^1.2.1"
   },
   "scripts": {
     "test": "grunt test"
