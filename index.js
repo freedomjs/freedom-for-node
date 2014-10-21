@@ -8,7 +8,7 @@ var resolvers = [],
   providers = [
     require('freedom/providers/core/core.unprivileged'),
     require('freedom/providers/core/echo.unprivileged'),
-    require('freedom/providers/core/logger.console'),
+    require('freedom/providers/core/console.unprivileged'),
     require('freedom/providers/core/peerconnection.unprivileged'),
     require('./providers/core.storage'),
     require('./providers/core.tcpsocket'),
