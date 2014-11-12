@@ -1,5 +1,6 @@
 describe('link.Node', function() {
-  it('Runs freedom Modules as node processes', function(done) {
+  it('Runs freedom Modules as node processes (and test randomness)',
+     function(done) {
     var freedom = require('../index').freedom;
 
     var mod = freedom('helper/friend.json');
