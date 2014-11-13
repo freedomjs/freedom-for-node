@@ -2,10 +2,11 @@ var friend = freedom();
 
 friend.on('message', function(msg) {
   // Test that we can get random bytes in module scope
-  var randomness = crypto.getRandomValues(new Uint16Array(10));
-  var passed = (randomness.length === 10);
+  var randomness = new Uint16Array(1000)
+  crypto.getRandomValues(randomness);
+  var passed = (randomness.length === 1000);
   for (var i = 0; i < randomness.length; i++) {
-    passed = passed && passed >= 0 && passed <= 65535;
+    passed = passed && (randomness[i] >= 0) && (randomness[i] <= 65535);
   }
   if (passed) {
     friend.emit('message', 'got message: ' + msg);
