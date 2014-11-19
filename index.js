@@ -12,14 +12,13 @@ var resolvers = [],
     require('freedom/providers/core/peerconnection.unprivileged'),
     require('./providers/core.storage'),
     require('./providers/core.tcpsocket'),
-    require('./providers/core.udpsocket')
+    require('./providers/core.udpsocket'),
+    require('freedom/providers/core/core.view'),
+    require('freedom/providers/core/core.oauth')
   ],
-  oauth = require('freedom/providers/core/oauth'),
   websocket = require('freedom/providers/core/websocket.unprivileged');
 
 websocket.setSocket(require('ws'), true);
-
-providers.push(oauth);
 providers.push(websocket);
 
 if (!module.parent) {
