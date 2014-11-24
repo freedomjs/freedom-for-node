@@ -24,7 +24,6 @@ providers.push(websocket);
 if (!module.parent) {
   require('./lib/modulecontext');
 } else {
-  global.Promise = require('es6-promise').Promise;
   require('./lib/resolvers')(resolvers);
 
   module.exports.freedom = require('freedom/src/entry').bind({}, {

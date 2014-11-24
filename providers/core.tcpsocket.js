@@ -135,10 +135,14 @@ TcpSocket_node.prototype.connect = function(hostname, port, cb) {
     });
   }
   
-  this.connection = this.net.connect(port, hostname);
-  this.state = TcpSocket_node.state.CONNECTING;
-  this.callback = cb;
-  this.attachListeners();
+  try {
+    this.connection = this.net.connect(port, hostname);
+    this.state = TcpSocket_node.state.CONNECTING;
+    this.callback = cb;
+    this.attachListeners();
+  } catch (e) {
+    this.onError(e);
+  }
 };
 
 TcpSocket_node.prototype.attachListeners = function() {
