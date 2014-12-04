@@ -23,20 +23,22 @@
     "grunt-prompt": "^1.2.1"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test",
+    "install": "grunt create-interface-bundle"
   },
   "dependencies": {
     "es5-shim": "^4.0.0",
     "es6-promise": "^2.0.0",
-    "freedom": "0.6.7",
+    "freedom": "0.6.10",
     "glob": "~4.1.5",
     "json-store": "0.0.1",
+    "node-json-minify": "^0.1.3-a",
     "tls-connect": "^0.2.2"
   },
   "optionalDependencies": {
     "ws": "~0.4.31"
   },
   "peerDependencies": {
-    "freedom": "0.6.7"
+    "freedom": "0.6.10"
   }
 }

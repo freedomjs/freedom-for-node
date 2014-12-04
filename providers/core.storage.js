@@ -5,10 +5,9 @@
  * A storage provider using node and the json-store module.
  * @constructor
  */
-var Storage_node = function(channel, dispatch) {
+var Storage_node = function(cap, dispatch) {
   this.store = require('json-store')(__dirname + '/../freedomjs-database.json');
   this.dispatchEvents = dispatch;
-  this.channel = channel;
 };
 
 Storage_node.prototype.get = function(key, continuation) {

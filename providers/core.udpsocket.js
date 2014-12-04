@@ -8,7 +8,7 @@
  * @param {Port} channel the module creating this provider.
  * @param {Function} dispatchEvent Method for emitting events.
  */
-var UdpSocket_node = function(channel, dispatchEvent) {
+var UdpSocket_node = function(cap, dispatchEvent) {
   this.dispatchEvent = dispatchEvent;
   this.dgram = require('dgram');
 

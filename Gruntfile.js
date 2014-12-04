@@ -1,12 +1,20 @@
 /**
  * Gruntfile for freedom-for-node
  */
+var freedomPrefix = require('path').dirname(require.resolve('freedom'));
 
 module.exports = function(grunt) {
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jasmine_node: {
       integration: ['spec']
+    },
+    'create-interface-bundle': {
+      freedom: {
+        files: {
+          'node_modules/freedomjs-interface-bundle.js': [freedomPrefix + '/interface/*.json']
+        }
+      }
     },
     bump: {
       options: {
@@ -50,6 +58,7 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('grunt-npm');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-prompt');
+  grunt.loadNpmTasks('freedom');
 
   grunt.registerTask('test', [
   'jasmine_node'
@@ -66,5 +75,5 @@ module.exports = function(grunt) {
     ]);
   });
 
-  grunt.registerTask('default', ['test']);
+  grunt.registerTask('default', ['create-interface-bundle', 'test']);
 };

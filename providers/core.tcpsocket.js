@@ -10,7 +10,7 @@
  * @param {number} id The identifier of the socket, if it exposing
  * a pre-existing accepted socket.
  */
-var TcpSocket_node = function(channel, dispatchEvent, id) {
+var TcpSocket_node = function(cap, dispatchEvent, id) {
   this.dispatchEvent = dispatchEvent;
   this.net = require('net');
   this.tlsconnect = require('tls-connect');
