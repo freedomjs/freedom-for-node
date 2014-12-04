@@ -12,8 +12,14 @@ module.exports = function(grunt) {
     'create-interface-bundle': {
       freedom: {
         files: {
-          'node_modules/freedomjs-interface-bundle.js': [freedomPrefix + '/interface/*.json']
+          'freedomjs-interface-bundle.js': [freedomPrefix + '/interface/*.json']
         }
+      }
+    },
+    copy:{
+      'interface-bundle': {
+        src: 'freedomjs-interface-bundle.js',
+        dest: 'node_modules/'
       }
     },
     bump: {
@@ -54,14 +60,20 @@ module.exports = function(grunt) {
 
   });
 
+  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-jasmine-node');
   grunt.loadNpmTasks('grunt-npm');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-prompt');
   grunt.loadNpmTasks('freedom');
 
+  grunt.registerTask('build', [
+    'create-interface-bundle',
+    'copy:interface-bundle'
+  ]);
+
   grunt.registerTask('test', [
-  'jasmine_node'
+    'jasmine_node'
   ]);
   
   grunt.registerTask('release', function(arg) {
@@ -75,5 +87,5 @@ module.exports = function(grunt) {
     ]);
   });
 
-  grunt.registerTask('default', ['create-interface-bundle', 'test']);
+  grunt.registerTask('default', ['build', 'test']);
 };
