@@ -12,7 +12,6 @@ logs
 results
 
 freedomjs-database.json
-freedomjs-interface-bundle.js
 
 npm-debug.log
 node_modules

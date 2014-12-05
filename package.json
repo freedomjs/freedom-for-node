@@ -24,8 +24,7 @@
     "grunt-prompt": "^1.2.1"
   },
   "scripts": {
-    "test": "grunt test",
-    "install": "cp freedomjs-interface-bundle.js node_modules/"
+    "test": "grunt test"
   },
   "dependencies": {
     "es5-shim": "^4.0.0",
