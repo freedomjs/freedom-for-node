@@ -9,13 +9,6 @@ module.exports = function(grunt) {
     jasmine_node: {
       integration: ['spec']
     },
-    'create-interface-bundle': {
-      freedom: {
-        files: {
-          'freedomjs-interface-bundle.js': [freedomPrefix + '/interface/*.json']
-        }
-      }
-    },
     copy:{
       'interface-bundle': {
         src: 'freedomjs-interface-bundle.js',
@@ -68,7 +61,6 @@ module.exports = function(grunt) {
   grunt.loadNpmTasks('freedom');
 
   grunt.registerTask('build', [
-    'create-interface-bundle',
     'copy:interface-bundle'
   ]);
 
