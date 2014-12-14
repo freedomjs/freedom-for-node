@@ -1,5 +1,5 @@
-/*globals require, console */
-/*jslint indent:2,white:true,sloppy:true */
+/*globals require, console, Uint8Array */
+/*jslint node:true,sloppy:true */
 
 /**
  * A freedom.js udp socket provider on Node Streams
@@ -8,7 +8,7 @@
  * @param {Port} channel the module creating this provider.
  * @param {Function} dispatchEvent Method for emitting events.
  */
-var UdpSocket_node = function(cap, dispatchEvent) {
+var UdpSocket_node = function (cap, dispatchEvent) {
   this.dispatchEvent = dispatchEvent;
   this.dgram = require('dgram');
 
@@ -22,9 +22,9 @@ UdpSocket_node.state = {
   CLOSED: 3
 };
 
-UdpSocket_node.prototype.getInfo = function(callback) {
+UdpSocket_node.prototype.getInfo = function (callback) {
   if (this.state === UdpSocket_node.state.NEW ||
-     this.state === UdpSocket_node.state.CLOSED) {
+      this.state === UdpSocket_node.state.CLOSED) {
     return callback({});
   } else {
     callback({
@@ -34,7 +34,7 @@ UdpSocket_node.prototype.getInfo = function(callback) {
   }
 };
 
-UdpSocket_node.prototype.sendTo = function(data, host, port, callback) {
+UdpSocket_node.prototype.sendTo = function (data, host, port, callback) {
   if (this.state !== UdpSocket_node.state.OPEN) {
     callback(undefined, {
       errcode: "SOCKET_CLOSED",
@@ -43,7 +43,7 @@ UdpSocket_node.prototype.sendTo = function(data, host, port, callback) {
     return;
   }
   var buffer = new Buffer(new Uint8Array(data));
-  this.connection.send(buffer, 0, buffer.length, port, host, function(err, bytes) {
+  this.connection.send(buffer, 0, buffer.length, port, host, function (err, bytes) {
     if (err) {
       callback(undefined, {
         errcode: "",
@@ -62,7 +62,7 @@ UdpSocket_node.prototype.sendTo = function(data, host, port, callback) {
  * @param {number} port The port to bind on.
  * @param {Function} cb Function to call with completion or error.
  */
-UdpSocket_node.prototype.bind = function(hostname, port, cb) {
+UdpSocket_node.prototype.bind = function (hostname, port, cb) {
   if (this.state !== UdpSocket_node.state.NEW) {
     console.warn('Attempting to connect on in use socket');
     return cb(false);
@@ -77,7 +77,7 @@ UdpSocket_node.prototype.bind = function(hostname, port, cb) {
   this.connection.bind(port, hostname, this.onConnect.bind(this));
 };
 
-UdpSocket_node.prototype.onConnect = function() {
+UdpSocket_node.prototype.onConnect = function () {
   if (this.state === UdpSocket_node.state.BINDING) {
     this.state = UdpSocket_node.state.OPEN;
   } else {
@@ -91,7 +91,7 @@ UdpSocket_node.prototype.onConnect = function() {
   }
 };
 
-UdpSocket_node.prototype.onError = function(error) {
+UdpSocket_node.prototype.onError = function (error) {
   if (this.state === UdpSocket_node.state.BINDING) {
     this.callback(undefined, {
       errcode: "BIND_FAILED",
@@ -106,9 +106,7 @@ UdpSocket_node.prototype.onError = function(error) {
   if (this.state === UdpSocket_node.state.CONNECTED) {
     console.warn('Socket Error: ' + error);
     this.dispatchEvent('onData', {
-      
-      errcode: "SOCKET_CLOSED",
-      message: "Socket Error: " + error.message
+      resultCode: -1
     });
     delete this.connection;
     this.state = UdpSocket_node.state.CLOSED;
@@ -121,7 +119,7 @@ UdpSocket_node.prototype.onError = function(error) {
  * @method onMessage
  * @private
  */
-UdpSocket_node.prototype.onMessage = function(data, remote) {
+UdpSocket_node.prototype.onMessage = function (data, remote) {
   var arrayBuffer = new Uint8Array(data).buffer;
   this.dispatchEvent('onData', {
     resultCode: 0,
@@ -136,7 +134,7 @@ UdpSocket_node.prototype.onMessage = function(data, remote) {
  * @method destroy
  * @param {Function} continuation Function to call once socket is closed.
  */
-UdpSocket_node.prototype.destroy = function(continuation) {
+UdpSocket_node.prototype.destroy = function (continuation) {
   if (this.connection) {
     this.connection.close();
     delete this.connection;

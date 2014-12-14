@@ -1,42 +1,41 @@
-/*globals require,fdom:true*/
-/*jslint indent:2,white:true,sloppy:true,node:true,nomen:true */
+/*jslint sloppy:true,node:true,nomen:true */
 
 /**
  * A storage provider using node and the json-store module.
  * @constructor
  */
-var Storage_node = function(cap, dispatch) {
+var Storage_node = function (cap, dispatch) {
   this.store = require('json-store')(__dirname + '/../freedomjs-database.json');
   this.dispatchEvents = dispatch;
 };
 
-Storage_node.prototype.get = function(key, continuation) {
+Storage_node.prototype.get = function (key, continuation) {
   try {
     var val = this.store.get(key);
     continuation(val);
-  } catch(e) {
+  } catch (e) {
     continuation(null);
   }
 };
 
-Storage_node.prototype.keys = function(continuation) {
+Storage_node.prototype.keys = function (continuation) {
   var dict = this.store.get();
   continuation(Object.keys(dict));
 };
 
-Storage_node.prototype.set = function(key, value, continuation) {
+Storage_node.prototype.set = function (key, value, continuation) {
   var old = this.store.get(key);
   this.store.set(key, value);
   continuation(old);
 };
 
-Storage_node.prototype.remove = function(key, continuation) {
+Storage_node.prototype.remove = function (key, continuation) {
   var old = this.store.get(key);
   this.store.del(key);
   continuation(old);
 };
 
-Storage_node.prototype.clear = function(continuation) {
+Storage_node.prototype.clear = function (continuation) {
   this.store.Store = {};
   this.store.save();
   continuation();

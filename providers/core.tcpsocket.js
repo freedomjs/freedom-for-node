@@ -1,5 +1,5 @@
-/*globals require,fdom:true, console */
-/*jslint indent:2,white:true,sloppy:true */
+/*globals require, console, Uint8Array */
+/*jslint node:true,sloppy:true */
 
 /**
  * A freedom.js tcp socket provider on Node Streams
@@ -10,7 +10,7 @@
  * @param {number} id The identifier of the socket, if it exposing
  * a pre-existing accepted socket.
  */
-var TcpSocket_node = function(cap, dispatchEvent, id) {
+var TcpSocket_node = function (cap, dispatchEvent, id) {
   this.dispatchEvent = dispatchEvent;
   this.net = require('net');
   this.tlsconnect = require('tls-connect');
@@ -43,7 +43,7 @@ TcpSocket_node.state = {
  * @param {ArrayBuffer} data The data to write
  * @param {Function} callback Function to call after completion or error.
  */
-TcpSocket_node.prototype.write = function(data, callback) {
+TcpSocket_node.prototype.write = function (data, callback) {
   if (this.state !== TcpSocket_node.state.CONNECTED) {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
@@ -60,7 +60,7 @@ TcpSocket_node.prototype.write = function(data, callback) {
  * @method getInfo
  * @param {Function} callback function to call with socket info.
  */
-TcpSocket_node.prototype.getInfo = function(callback) {
+TcpSocket_node.prototype.getInfo = function (callback) {
   if (this.state === TcpSocket_node.state.NEW) {
     return callback({
       connected: false
@@ -83,7 +83,7 @@ TcpSocket_node.prototype.getInfo = function(callback) {
  * @method prepareSecure
  * @param {Function} callback function to call on completion or error.
  */
-TcpSocket_node.prototype.prepareSecure = function(callback) {
+TcpSocket_node.prototype.prepareSecure = function (callback) {
   callback();
 };
 
@@ -92,7 +92,7 @@ TcpSocket_node.prototype.prepareSecure = function(callback) {
  * @method secure
  * @param {Function} callback function to call on completion or error.
  */
-TcpSocket_node.prototype.secure = function(callback) {
+TcpSocket_node.prototype.secure = function (callback) {
   if (this.state !== TcpSocket_node.state.CONNECTED) {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
@@ -101,11 +101,11 @@ TcpSocket_node.prototype.secure = function(callback) {
     return;
   }
   this.tlsconnect({
-        socket: this.connection,
-        rejectUnauthorized: true,
-        requestCert: true,
-        isServer: false
-    }, function() {
+    socket: this.connection,
+    rejectUnauthorized: true,
+    requestCert: true,
+    isServer: false
+  }, function () {
     if (!this.connection.authorized) {
       this.connection.destroy();
       this.state = TcpSocket_node.state.CLOSED;
@@ -126,9 +126,8 @@ TcpSocket_node.prototype.secure = function(callback) {
  * @param {number} port The port to connect on.
  * @param {Function} cb Function to call with completion or error.
  */
-TcpSocket_node.prototype.connect = function(hostname, port, cb) {
+TcpSocket_node.prototype.connect = function (hostname, port, cb) {
   if (this.state !== TcpSocket_node.state.NEW) {
-    console.warn('Attempting to connect on in use socket');
     return cb(undefined, {
       "errcode": "ALREADY_CONNECTED",
       "message": "Cannot Connect Existing Socket"
@@ -145,7 +144,7 @@ TcpSocket_node.prototype.connect = function(hostname, port, cb) {
   }
 };
 
-TcpSocket_node.prototype.attachListeners = function() {
+TcpSocket_node.prototype.attachListeners = function () {
   this.connection.on('data', this.onData.bind(this));
   this.connection.on('end', this.onEnd.bind(this));
   this.connection.on('timeout', this.onEnd.bind(this));
@@ -153,7 +152,7 @@ TcpSocket_node.prototype.attachListeners = function() {
   this.connection.on('connect', this.onConnect.bind(this, 0));
 };
 
-TcpSocket_node.prototype.onConnect = function(status) {
+TcpSocket_node.prototype.onConnect = function (status) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.state = TcpSocket_node.state.CONNECTED;
   } else if (this.state === TcpSocket_node.state.BINDING) {
@@ -169,7 +168,7 @@ TcpSocket_node.prototype.onConnect = function(status) {
   }
 };
 
-TcpSocket_node.prototype.onError = function(error) {
+TcpSocket_node.prototype.onError = function (error) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.callback(undefined, {
       "errcode": "CONNECTION_FAILED",
@@ -192,13 +191,13 @@ TcpSocket_node.prototype.onError = function(error) {
   }
 };
 
-TcpSocket_node.prototype.onEnd = function(socketId) {
-    this.dispatchEvent('onDisconnect', {
-      errcode: 'CONNECTION_CLOSED',
-      message: 'Connection closed gracefully'
-    });
-    delete this.connection;
-    this.state = TcpSocket_node.state.CLOSED;
+TcpSocket_node.prototype.onEnd = function () {
+  this.dispatchEvent('onDisconnect', {
+    errcode: 'CONNECTION_CLOSED',
+    message: 'Connection closed gracefully'
+  });
+  delete this.connection;
+  this.state = TcpSocket_node.state.CLOSED;
 };
 
 TcpSocket_node.ERROR_MAP = {
@@ -227,7 +226,7 @@ TcpSocket_node.ERROR_MAP = {
  * @method read
  * @private
  */
-TcpSocket_node.prototype.onData = function(data) {
+TcpSocket_node.prototype.onData = function (data) {
   var arrayBuffer = new Uint8Array(data).buffer;
   this.dispatchEvent('onData', {
     data: arrayBuffer
@@ -241,7 +240,7 @@ TcpSocket_node.prototype.onData = function(data) {
  * @param {number} port the port to listen on
  * @param {Function} callback Callback to call when listening has occured.
  */
-TcpSocket_node.prototype.listen = function(address, port, callback) {
+TcpSocket_node.prototype.listen = function (address, port, callback) {
   if (this.state !== TcpSocket_node.state.NEW) {
     callback(undefined, {
       errcode: "ALREADY_CONNECTED",
@@ -262,7 +261,7 @@ TcpSocket_node.prototype.listen = function(address, port, callback) {
   this.connection.listen(port, address);
 };
 
-TcpSocket_node.prototype.onAccept = function(connection) {
+TcpSocket_node.prototype.onAccept = function (connection) {
   var id = TcpSocket_node.unboundId += 1;
   TcpSocket_node.unbound[id] = connection;
   
@@ -280,7 +279,7 @@ TcpSocket_node.prototype.onAccept = function(connection) {
  * @param {number} socketId The socket to disconnect
  * @param {Function} continuation Function to call once socket is disconnected.
  */
-TcpSocket_node.prototype.close = function(continuation) {
+TcpSocket_node.prototype.close = function (continuation) {
   if (this.connection) {
     if (this.state === TcpSocket_node.state.BINDING ||
         this.state === TcpSocket_node.state.LISTENING) {
