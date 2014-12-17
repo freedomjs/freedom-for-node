@@ -6,6 +6,15 @@ module.exports = function (grunt) {
   'use strict';
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
+    jshint: {
+      root: [ 'Gruntfile.js', 'index.js', 'package.json' ],
+      src: [ 'lib/**/*' ],
+      demo: [ 'demo/**/*' ],
+      providers: [ 'providers/**/*' ],
+      options: {
+        jshintrc: true
+      }
+    },
     jasmine_node: {
       integration: ['spec']
     },
@@ -46,6 +55,7 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.loadNpmTasks('grunt-contrib-jshint');
   grunt.loadNpmTasks('grunt-jasmine-node');
   grunt.loadNpmTasks('grunt-npm');
   grunt.loadNpmTasks('grunt-bump');
@@ -53,6 +63,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('freedom');
 
   grunt.registerTask('test', [
+    'jshint',
     'jasmine_node'
   ]);
   
