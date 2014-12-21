@@ -7,16 +7,16 @@
 var resolvers = [],
   providers = [
     require('freedom/providers/core/core.unprivileged'),
-    require('freedom/providers/core/echo.unprivileged'),
-    require('freedom/providers/core/console.unprivileged'),
-    require('freedom/providers/core/peerconnection.unprivileged'),
+    require('freedom/providers/core/core.echo'),
+    require('freedom/providers/core/core.console'),
+    require('freedom/providers/core/core.peerconnection'),
     require('./providers/core.storage'),
     require('./providers/core.tcpsocket'),
     require('./providers/core.udpsocket'),
     require('freedom/providers/core/core.view'),
     require('freedom/providers/core/core.oauth')
   ],
-  websocket = require('freedom/providers/core/websocket.unprivileged');
+  websocket = require('freedom/providers/core/core.websocket');
 
 websocket.setSocket(require('ws'), true);
 providers.push(websocket);
