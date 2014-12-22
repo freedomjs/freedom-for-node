@@ -3,11 +3,11 @@ testUtil.setSpecBase('node://' + require('path').dirname(require.resolve('freedo
                     require('../lib/resolvers'));
 var providers = [
   require('freedom/providers/core/core.unprivileged'),
-  require('freedom/providers/core/console.unprivileged'),
-  require('freedom/providers/core/peerconnection.unprivileged'),
+  require('freedom/providers/core/core.console'),
+  require('freedom/providers/core/core.peerconnection'),
   require('../providers/core.storage')
 ];
-var websocket = require('freedom/providers/core/websocket.unprivileged');
+var websocket = require('freedom/providers/core/core.websocket');
 websocket.setSocket(require('ws'), true);
 providers.push(websocket);
 

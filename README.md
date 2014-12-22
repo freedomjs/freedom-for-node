@@ -14,14 +14,14 @@ Installation
 Running
 -------
 
-Creating a freedom.js application from node is slightly different from within
-a browser.  We follow the node conventions of using require to separate
-namespaces, and spawn child processes to allow dropping of privileges of
-potentially untrusted code.
-
-    var app = require('freedom-for-node').freedom('path/to/module.json');
-	app.on('event', function(data) {
+Creating a freedom.js application from node is identical to the case in the browser.
+You can find the `freedom` object exported from the module.
+    
+    require('freedom-for-node').freedom('path/to/module.json', {}).then(function(Root){
+	var root = new Root();
+	root.on('event', function(data) {
 		// Do things.
 	});
-	app.emit('message', 'my Message');
+	root.emit('message', 'my Message');
+    });
 
