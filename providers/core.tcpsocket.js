@@ -71,8 +71,8 @@ TcpSocket_node.prototype.getInfo = function (callback) {
       connected: this.connection.state === TcpSocket_node.state.CONNECTED,
       peerAddress: this.connection.remoteAddress,
       peerPort: this.connection.remotePort,
-      localAddress: this.connection.localAddress,
-      localPort: this.connection.localPort
+      localAddress: this.connection.address().address,
+      localPort: this.connection.address().port
     });
   }
 };
