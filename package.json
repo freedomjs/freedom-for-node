@@ -37,7 +37,7 @@
   },
   "optionalDependencies": {
     "ws": "~0.6.3",
-    "xmlhttprequest": "~1.6.0"
+    "xhr2": "~0.1.0"
   },
   "peerDependencies": {
     "freedom": "~0.6.13"

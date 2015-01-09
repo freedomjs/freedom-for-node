@@ -20,7 +20,7 @@ var resolvers = [],
   xhr = require('freedom/providers/core/core.xhr');
 
 websocket.setSocket(require('ws'), true);
-xhr.setImpl(require('xmlhttprequest').XMLHttpRequest);
+xhr.setImpl(require('xhr2'));
 providers.concat([ websocket, xhr ]);
 
 if (!module.parent) {
