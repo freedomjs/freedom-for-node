@@ -16,10 +16,12 @@ var resolvers = [],
     require('freedom/providers/core/core.view'),
     require('freedom/providers/core/core.oauth')
   ],
-  websocket = require('freedom/providers/core/core.websocket');
+  websocket = require('freedom/providers/core/core.websocket'),
+  xhr = require('freedom/providers/core/core.xhr');
 
 websocket.setSocket(require('ws'), true);
-providers.push(websocket);
+xhr.setImpl(require('xmlhttprequest').XMLHttpRequest);
+providers.concat([ websocket, xhr ]);
 
 if (!module.parent) {
   require('./lib/modulecontext');

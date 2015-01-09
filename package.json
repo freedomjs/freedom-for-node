@@ -36,7 +36,8 @@
     "tls-connect": "^0.2.2"
   },
   "optionalDependencies": {
-    "ws": "~0.6.3"
+    "ws": "~0.6.3",
+    "xmlhttprequest": "~1.6.0"
   },
   "peerDependencies": {
     "freedom": "~0.6.13"
