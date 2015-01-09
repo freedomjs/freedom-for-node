@@ -4,24 +4,25 @@
  */
 
 'use strict';
-var resolvers = [],
-  providers = [
-    require('freedom/providers/core/core.unprivileged'),
-    require('freedom/providers/core/core.echo'),
-    require('freedom/providers/core/core.console'),
-    require('freedom/providers/core/core.peerconnection'),
-    require('./providers/core.storage'),
-    require('./providers/core.tcpsocket'),
-    require('./providers/core.udpsocket'),
-    require('freedom/providers/core/core.view'),
-    require('freedom/providers/core/core.oauth')
-  ],
-  websocket = require('freedom/providers/core/core.websocket'),
-  xhr = require('freedom/providers/core/core.xhr');
-
+var resolvers = [];
+var websocket = require('freedom/providers/core/core.websocket');
+var xhr = require('freedom/providers/core/core.xhr');
 websocket.setSocket(require('ws'), true);
 xhr.setImpl(require('xhr2'));
-providers.concat([ websocket, xhr ]);
+
+var providers = [
+  require('freedom/providers/core/core.unprivileged'),
+  require('freedom/providers/core/core.echo'),
+  require('freedom/providers/core/core.console'),
+  require('freedom/providers/core/core.peerconnection'),
+  require('./providers/core.storage'),
+  require('./providers/core.tcpsocket'),
+  require('./providers/core.udpsocket'),
+  require('freedom/providers/core/core.view'),
+  require('freedom/providers/core/core.oauth'),
+  websocket,
+  xhr
+];
 
 if (!module.parent) {
   require('./lib/modulecontext');
