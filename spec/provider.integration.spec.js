@@ -36,3 +36,9 @@ describe("integration: storage.shared.json",
 describe("integration: core.tcpsocket",
     require('freedom/spec/providers/coreIntegration/tcpsocket.integration.src').bind(this,
     require('../providers/core.tcpsocket'), setup));
+
+var xhr = require('freedom/providers/core/core.xhr');
+xhr.setImpl(require('xhr2'));
+describe("integration: core.xhr", 
+    require("freedom/spec/providers/coreIntegration/xhr.integration.src").bind(this, 
+    xhr, setup));
