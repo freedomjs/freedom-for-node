@@ -40,6 +40,6 @@
     "xhr2": "~0.1.0"
   },
   "peerDependencies": {
-    "freedom": "~0.6.13"
+    "freedom": "~0.6.17"
   }
 }
