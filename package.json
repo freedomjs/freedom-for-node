@@ -23,7 +23,7 @@
     "grunt-prompt": "^1.2.1"
   },
   "scripts": {
-    "test": "grunt test"
+    "test": "grunt test --verbose"
   },
   "dependencies": {
     "es5-shim": "^4.0.0",
