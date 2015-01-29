@@ -135,8 +135,8 @@ TcpSocket_node.prototype.connect = function (hostname, port, cb) {
   }
 
   try {
-    this.connection = this.net.connect(port, hostname);
     this.state = TcpSocket_node.state.CONNECTING;
+    this.connection = this.net.connect(port, hostname);
     this.callback = cb;
     this.attachListeners();
   } catch (e) {
