@@ -133,10 +133,10 @@ TcpSocket_node.prototype.connect = function (hostname, port, cb) {
       "message": "Cannot Connect Existing Socket"
     });
   }
-  
+
   try {
-    this.connection = this.net.connect(port, hostname);
     this.state = TcpSocket_node.state.CONNECTING;
+    this.connection = this.net.connect(port, hostname);
     this.callback = cb;
     this.attachListeners();
   } catch (e) {
@@ -178,9 +178,7 @@ TcpSocket_node.prototype.onError = function (error) {
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
     return;
-  }
-
-  if (this.state === TcpSocket_node.state.CONNECTED) {
+  } else if (this.state === TcpSocket_node.state.CONNECTED) {
     console.warn('Socket Error: ' + error);
     this.dispatchEvent('onDisconnect', {
       errcode: "SOCKET_CLOSED",
@@ -188,6 +186,12 @@ TcpSocket_node.prototype.onError = function (error) {
     });
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
+    return;
+  } else {
+    console.warn('Socket Error: ' + error);
+    delete this.connection;
+    this.state = TcpSocket_node.state.CLOSED;
+    return;
   }
 };
 
@@ -264,7 +268,7 @@ TcpSocket_node.prototype.listen = function (address, port, callback) {
 TcpSocket_node.prototype.onAccept = function (connection) {
   var id = TcpSocket_node.unboundId += 1;
   TcpSocket_node.unbound[id] = connection;
-  
+
   this.dispatchEvent('onConnection', {
     'socket': id,
     'host': connection.remoteAddress,

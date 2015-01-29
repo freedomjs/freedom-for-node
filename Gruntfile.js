@@ -56,7 +56,7 @@ module.exports = function (grunt) {
   });
 
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-jasmine-node');
+  grunt.loadNpmTasks('grunt-jasmine-node2');
   grunt.loadNpmTasks('grunt-npm');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-prompt');
