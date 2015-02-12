@@ -1,8 +1,8 @@
 freedom-for-node
 ====================
-
-[![Code Climate](https://codeclimate.com/github/freedomjs/freedom-for-node/badges/gpa.svg)](https://codeclimate.com/github/freedomjs/freedom-for-node)
 [![Build Status](https://travis-ci.org/freedomjs/freedom-for-node.svg?branch=master)](https://travis-ci.org/freedomjs/freedom-for-node)
+[![Build Status](https://api.shippable.com/projects/54c823bf5ab6cc135289fbd3/badge?branchName=master)](https://app.shippable.com/projects/54c823bf5ab6cc135289fbd3/builds/latest)
+[![Code Climate](https://codeclimate.com/github/freedomjs/freedom-for-node/badges/gpa.svg)](https://codeclimate.com/github/freedomjs/freedom-for-node)
 A freedom.js Distribution for inclusion by Node.js.
 
 Installation
