@@ -1,0 +1,16 @@
+language: node_js
+node_js:
+- '0.10'
+- '0.11'
+notifications:
+  email:
+    recipients:
+      - freedom@cs.washington.edu
+    on_success: change
+    on_failure: always
+install:
+  - "git branch"
+  - "git pull"
+  - "shippable_retry npm install"
+script:
+  - "grunt test"
