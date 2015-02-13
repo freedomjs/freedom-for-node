@@ -10,8 +10,6 @@ notifications:
     on_success: change
     on_failure: always
 install:
-  - "git branch"
-  - "git pull"
   - "shippable_retry npm install"
 script:
   - "grunt test"
