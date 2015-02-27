@@ -60,7 +60,6 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-npm');
   grunt.loadNpmTasks('grunt-bump');
   grunt.loadNpmTasks('grunt-prompt');
-  grunt.loadNpmTasks('freedom');
 
   grunt.registerTask('test', [
     'jshint',
