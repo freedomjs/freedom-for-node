@@ -56,6 +56,40 @@ TcpSocket_node.prototype.write = function (data, callback) {
 };
 
 /**
+ * Pause the socket
+ * @method pause
+ * @param {Function} callback Function to call after pausing the socket.
+ */
+TcpSocket_node.prototype.pause = function (callback) {
+  if (this.state !== TcpSocket_node.state.CONNECTED) {
+    callback(undefined, {
+      "errcode": "NOT_CONNECTED",
+      "message": "Cannot pause a closed socket"
+    });
+    return;
+  }
+  this.connection.pause();
+  callback();
+};
+
+/**
+ * Resume the socket
+ * @method resume
+ * @param {Function} callback Function to call after resuming the socket.
+ */
+TcpSocket_node.prototype.resume = function (callback) {
+  if (this.state !== TcpSocket_node.state.CONNECTED) {
+    callback(undefined, {
+      "errcode": "NOT_CONNECTED",
+      "message": "Cannot resume a closed socket"
+    });
+    return;
+  }
+  this.connection.resume();
+  callback();
+};
+
+/**
  * Get information about an active socket.
  * @method getInfo
  * @param {Function} callback function to call with socket info.
