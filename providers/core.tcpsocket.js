@@ -16,10 +16,11 @@ var TcpSocket_node = function (cap, dispatchEvent, id) {
   this.tlsconnect = require('tls-connect');
 
   this.state = TcpSocket_node.state.NEW;
+  this.servername = undefined;
 
   if (id !== undefined && TcpSocket_node.unbound[id]) {
-    this.state = TcpSocket_node.state.CONNECTED;
     this.connection = TcpSocket_node.unbound[id];
+    this.state = TcpSocket_node.state.CONNECTED;
     delete TcpSocket_node.unbound[id];
     this.attachListeners();
   }
@@ -102,7 +103,7 @@ TcpSocket_node.prototype.getInfo = function (callback) {
   } else {
     callback({
       type: 'tcp',
-      connected: this.connection.state === TcpSocket_node.state.CONNECTED,
+      connected: this.state === TcpSocket_node.state.CONNECTED,
       peerAddress: this.connection.remoteAddress,
       peerPort: this.connection.remotePort,
       localAddress: this.connection.address().address,
@@ -134,13 +135,14 @@ TcpSocket_node.prototype.secure = function (callback) {
     });
     return;
   }
-  this.tlsconnect({
+  var cleartext = this.tlsconnect({
     socket: this.connection,
     rejectUnauthorized: true,
     requestCert: true,
-    isServer: false
+    isServer: false,
+    servername: this.servername
   }, function () {
-    if (!this.connection.authorized) {
+    if (!cleartext.authorized) {
       this.connection.destroy();
       this.state = TcpSocket_node.state.CLOSED;
       callback(undefined, {
@@ -148,6 +150,7 @@ TcpSocket_node.prototype.secure = function (callback) {
         "message": "Failed to secure socket."
       });
     } else {
+      this.upgradeConnection(cleartext);
       callback();
     }
   }.bind(this));
@@ -170,6 +173,7 @@ TcpSocket_node.prototype.connect = function (hostname, port, cb) {
 
   try {
     this.state = TcpSocket_node.state.CONNECTING;
+    this.servername = hostname;
     this.connection = this.net.connect(port, hostname);
     this.callback = cb;
     this.attachListeners();
@@ -179,11 +183,31 @@ TcpSocket_node.prototype.connect = function (hostname, port, cb) {
 };
 
 TcpSocket_node.prototype.attachListeners = function () {
-  this.connection.on('data', this.onData.bind(this));
-  this.connection.on('end', this.onEnd.bind(this));
-  this.connection.on('timeout', this.onEnd.bind(this));
-  this.connection.on('error', this.onError.bind(this));
-  this.connection.on('connect', this.onConnect.bind(this, 0));
+  if (!this.listeners) {
+    this.listeners = {
+      'data': this.onData.bind(this),
+      'end': this.onEnd.bind(this),
+      'timeout': this.onEnd.bind(this),
+      'error': this.onError.bind(this),
+      'connect': this.onConnect.bind(this, 0)
+    };
+  }
+
+  for (var key in this.listeners) {
+    if (this.listeners.hasOwnProperty(key)) {
+      this.connection.on(key, this.listeners[key]);
+    }
+  }
+};
+
+TcpSocket_node.prototype.upgradeConnection = function (newConn) {
+  for (var key in this.listeners) {
+    if (this.listeners.hasOwnProperty(key)) {
+      this.connection.removeListener(key, this.listeners[key]);
+    }
+  }
+  this.connection = newConn;
+  this.attachListeners();
 };
 
 TcpSocket_node.prototype.onConnect = function (status) {
@@ -191,8 +215,12 @@ TcpSocket_node.prototype.onConnect = function (status) {
     this.state = TcpSocket_node.state.CONNECTED;
   } else if (this.state === TcpSocket_node.state.BINDING) {
     this.state = TcpSocket_node.state.LISTENING;
+  } else if (this.state === TcpSocket_node.state.CONNECTED &&
+      this.connection.authorized === true) {
+    // Scoket secured.
+    return;
   } else {
-    console.warn('Connection on invalid state socket!');
+    console.warn('Connection on invalid state socket!', this.state);
     return;
   }
 
@@ -323,12 +351,17 @@ TcpSocket_node.prototype.close = function (continuation) {
         this.state === TcpSocket_node.state.LISTENING) {
       this.connection.close();
     } else {
-      this.connection.end();
+      this.connection.destroy();
     }
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
+    continuation();
+  } else {
+    continuation(undefined, {
+      "errcode": "SOCKET_CLOSED",
+      "message": "Socket already closed."
+    });
   }
-  continuation();
 };
 
 /** REGISTER PROVIDER **/
