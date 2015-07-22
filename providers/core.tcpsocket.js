@@ -20,7 +20,9 @@ var TcpSocket_node = function (cap, dispatchEvent, id) {
 
   if (id !== undefined && TcpSocket_node.unbound[id]) {
     this.connection = TcpSocket_node.unbound[id];
-    this.state = TcpSocket_node.state.CONNECTED;
+    if (!this.connection.destroyed) {
+      this.state = TcpSocket_node.state.CONNECTED;
+    }
     delete TcpSocket_node.unbound[id];
     this.attachListeners();
   }
