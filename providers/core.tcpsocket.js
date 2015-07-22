@@ -19,17 +19,20 @@ var TcpSocket_node = function (cap, dispatchEvent, id) {
   this.servername = undefined;
 
   if (id !== undefined && TcpSocket_node.unbound[id]) {
+    this.id = id;
     this.connection = TcpSocket_node.unbound[id];
-    if (!this.connection.destroyed) {
-      this.state = TcpSocket_node.state.CONNECTED;
-    }
+    this.state = TcpSocket_node.connectionState[id];
     delete TcpSocket_node.unbound[id];
     this.attachListeners();
+  } else {
+    this.id = TcpSocket_node.baseId += 1;
   }
+  TcpSocket_node.connectionState[this.id] = this.state;
 };
 
 TcpSocket_node.unbound = {};
-TcpSocket_node.unboundId = 1;
+TcpSocket_node.baseId = 1;
+TcpSocket_node.connectionState = {};
 
 TcpSocket_node.state = {
   NEW: 0,
@@ -146,7 +149,8 @@ TcpSocket_node.prototype.secure = function (callback) {
   }, function () {
     if (!cleartext.authorized) {
       this.connection.destroy();
-      this.state = TcpSocket_node.state.CLOSED;
+      TcpSocket_node.connectionState[this.id] = this.state =
+        TcpSocket_node.state.CLOSED;
       callback(undefined, {
         "errcode": "CONNECTION_RESET",
         "message": "Failed to secure socket."
@@ -174,7 +178,8 @@ TcpSocket_node.prototype.connect = function (hostname, port, cb) {
   }
 
   try {
-    this.state = TcpSocket_node.state.CONNECTING;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.CONNECTING;
     this.servername = hostname;
     this.connection = this.net.connect(port, hostname);
     this.callback = cb;
@@ -214,12 +219,14 @@ TcpSocket_node.prototype.upgradeConnection = function (newConn) {
 
 TcpSocket_node.prototype.onConnect = function (status) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
-    this.state = TcpSocket_node.state.CONNECTED;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.CONNECTED;
   } else if (this.state === TcpSocket_node.state.BINDING) {
-    this.state = TcpSocket_node.state.LISTENING;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.LISTENING;
   } else if (this.state === TcpSocket_node.state.CONNECTED &&
       this.connection.authorized === true) {
-    // Scoket secured.
+    // Socket secured.
     return;
   } else {
     console.warn('Connection on invalid state socket!', this.state);
@@ -240,7 +247,8 @@ TcpSocket_node.prototype.onError = function (error) {
     });
     delete this.callback;
     delete this.connection;
-    this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.CLOSED;
     return;
   } else if (this.state === TcpSocket_node.state.CONNECTED) {
     console.warn('Socket Error: ' + error);
@@ -249,12 +257,14 @@ TcpSocket_node.prototype.onError = function (error) {
       message: "Socket Error: " + error.message
     });
     delete this.connection;
-    this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.CLOSED;
     return;
   } else {
     console.warn('Socket Error: ' + error);
     delete this.connection;
-    this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.CLOSED;
     return;
   }
 };
@@ -265,7 +275,8 @@ TcpSocket_node.prototype.onEnd = function () {
     message: 'Connection closed gracefully'
   });
   delete this.connection;
-  this.state = TcpSocket_node.state.CLOSED;
+  TcpSocket_node.connectionState[this.id] = this.state =
+    TcpSocket_node.state.CLOSED;
 };
 
 TcpSocket_node.ERROR_MAP = {
@@ -319,7 +330,8 @@ TcpSocket_node.prototype.listen = function (address, port, callback) {
 
   this.connection = this.net.createServer();
   this.callback = callback;
-  this.state = TcpSocket_node.state.BINDING;
+  TcpSocket_node.connectionState[this.id] = this.state =
+    TcpSocket_node.state.BINDING;
 
   this.connection.on('error', this.onError.bind(this));
   this.connection.on('listening', this.onConnect.bind(this, undefined));
@@ -330,11 +342,10 @@ TcpSocket_node.prototype.listen = function (address, port, callback) {
 };
 
 TcpSocket_node.prototype.onAccept = function (connection) {
-  var id = TcpSocket_node.unboundId += 1;
-  TcpSocket_node.unbound[id] = connection;
+  TcpSocket_node.unbound[this.id] = connection;
 
   this.dispatchEvent('onConnection', {
-    'socket': id,
+    'socket': this.id,
     'host': connection.remoteAddress,
     'port': connection.remotePort
   });
@@ -356,7 +367,8 @@ TcpSocket_node.prototype.close = function (continuation) {
       this.connection.destroy();
     }
     delete this.connection;
-    this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state =
+      TcpSocket_node.state.CLOSED;
     continuation();
   } else {
     continuation(undefined, {
