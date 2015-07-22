@@ -14,6 +14,7 @@ var providers = [
   require('freedom/providers/core/core.unprivileged'),
   require('freedom/providers/core/core.echo'),
   require('freedom/providers/core/core.console'),
+  require('freedom/providers/core/core.crypto'),
   require('freedom/providers/core/core.peerconnection'),
   require('./providers/core.storage'),
   require('./providers/core.tcpsocket'),
