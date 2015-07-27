@@ -243,7 +243,7 @@ TcpSocket_node.prototype.onError = function (error) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.callback(undefined, {
       "errcode": "CONNECTION_FAILED",
-      message: "Socket Error: " + error.message
+      "message": "Socket Error: " + error.message
     });
     delete this.callback;
     delete this.connection;
@@ -253,8 +253,8 @@ TcpSocket_node.prototype.onError = function (error) {
   } else if (this.state === TcpSocket_node.state.CONNECTED) {
     console.warn('Socket Error: ' + error);
     this.dispatchEvent('onDisconnect', {
-      errcode: "SOCKET_CLOSED",
-      message: "Socket Error: " + error.message
+      "errcode": "SOCKET_CLOSED",
+      "message": "Socket Error: " + error.message
     });
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
@@ -271,8 +271,8 @@ TcpSocket_node.prototype.onError = function (error) {
 
 TcpSocket_node.prototype.onEnd = function () {
   this.dispatchEvent('onDisconnect', {
-    errcode: 'CONNECTION_CLOSED',
-    message: 'Connection closed gracefully'
+    "errcode": "CONNECTION_CLOSED",
+    "message": "Connection closed gracefully"
   });
   delete this.connection;
   this.state = TcpSocket_node.state.CLOSED;
@@ -322,8 +322,8 @@ TcpSocket_node.prototype.onData = function (data) {
 TcpSocket_node.prototype.listen = function (address, port, callback) {
   if (this.state !== TcpSocket_node.state.NEW) {
     callback(undefined, {
-      errcode: "ALREADY_CONNECTED",
-      message: "Cannot Listen on existing socket."
+      "errcode": "ALREADY_CONNECTED",
+      "message": "Cannot Listen on existing socket."
     });
     return;
   }
@@ -362,14 +362,14 @@ TcpSocket_node.prototype.close = function (continuation) {
   if (this.connection) {
     if (this.state === TcpSocket_node.state.BINDING ||
         this.state === TcpSocket_node.state.LISTENING) {
-      this.connection.close();
+      this.connection.close(continuation);
     } else {
       this.connection.destroy();
+      continuation();
     }
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
     TcpSocket_node.connectionState[this.id] = this.state;
-    continuation();
   } else {
     continuation(undefined, {
       "errcode": "SOCKET_CLOSED",
