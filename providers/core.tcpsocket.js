@@ -19,15 +19,20 @@ var TcpSocket_node = function (cap, dispatchEvent, id) {
   this.servername = undefined;
 
   if (id !== undefined && TcpSocket_node.unbound[id]) {
+    this.id = id;
     this.connection = TcpSocket_node.unbound[id];
-    this.state = TcpSocket_node.state.CONNECTED;
+    this.state = TcpSocket_node.connectionState[id];
     delete TcpSocket_node.unbound[id];
     this.attachListeners();
+  } else {
+    this.id = TcpSocket_node.baseId += 1;
   }
+  TcpSocket_node.connectionState[this.id] = this.state;
 };
 
 TcpSocket_node.unbound = {};
-TcpSocket_node.unboundId = 1;
+TcpSocket_node.baseId = 1;
+TcpSocket_node.connectionState = {};
 
 TcpSocket_node.state = {
   NEW: 0,
@@ -145,6 +150,7 @@ TcpSocket_node.prototype.secure = function (callback) {
     if (!cleartext.authorized) {
       this.connection.destroy();
       this.state = TcpSocket_node.state.CLOSED;
+      TcpSocket_node.connectionState[this.id] = this.state;
       callback(undefined, {
         "errcode": "CONNECTION_RESET",
         "message": "Failed to secure socket."
@@ -173,6 +179,7 @@ TcpSocket_node.prototype.connect = function (hostname, port, cb) {
 
   try {
     this.state = TcpSocket_node.state.CONNECTING;
+    TcpSocket_node.connectionState[this.id] = this.state;
     this.servername = hostname;
     this.connection = this.net.connect(port, hostname);
     this.callback = cb;
@@ -213,11 +220,13 @@ TcpSocket_node.prototype.upgradeConnection = function (newConn) {
 TcpSocket_node.prototype.onConnect = function (status) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.state = TcpSocket_node.state.CONNECTED;
+    TcpSocket_node.connectionState[this.id] = this.state;
   } else if (this.state === TcpSocket_node.state.BINDING) {
     this.state = TcpSocket_node.state.LISTENING;
+    TcpSocket_node.connectionState[this.id] = this.state;
   } else if (this.state === TcpSocket_node.state.CONNECTED &&
-      this.connection.authorized === true) {
-    // Scoket secured.
+             this.connection.authorized === true) {
+    // Socket secured.
     return;
   } else {
     console.warn('Connection on invalid state socket!', this.state);
@@ -234,36 +243,40 @@ TcpSocket_node.prototype.onError = function (error) {
   if (this.state === TcpSocket_node.state.CONNECTING) {
     this.callback(undefined, {
       "errcode": "CONNECTION_FAILED",
-      message: "Socket Error: " + error.message
+      "message": "Socket Error: " + error.message
     });
     delete this.callback;
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state;
     return;
   } else if (this.state === TcpSocket_node.state.CONNECTED) {
     console.warn('Socket Error: ' + error);
     this.dispatchEvent('onDisconnect', {
-      errcode: "SOCKET_CLOSED",
-      message: "Socket Error: " + error.message
+      "errcode": "SOCKET_CLOSED",
+      "message": "Socket Error: " + error.message
     });
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state;
     return;
   } else {
     console.warn('Socket Error: ' + error);
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
+    TcpSocket_node.connectionState[this.id] = this.state;
     return;
   }
 };
 
 TcpSocket_node.prototype.onEnd = function () {
   this.dispatchEvent('onDisconnect', {
-    errcode: 'CONNECTION_CLOSED',
-    message: 'Connection closed gracefully'
+    "errcode": "CONNECTION_CLOSED",
+    "message": "Connection closed gracefully"
   });
   delete this.connection;
   this.state = TcpSocket_node.state.CLOSED;
+  TcpSocket_node.connectionState[this.id] = this.state;
 };
 
 TcpSocket_node.ERROR_MAP = {
@@ -309,8 +322,8 @@ TcpSocket_node.prototype.onData = function (data) {
 TcpSocket_node.prototype.listen = function (address, port, callback) {
   if (this.state !== TcpSocket_node.state.NEW) {
     callback(undefined, {
-      errcode: "ALREADY_CONNECTED",
-      message: "Cannot Listen on existing socket."
+      "errcode": "ALREADY_CONNECTED",
+      "message": "Cannot Listen on existing socket."
     });
     return;
   }
@@ -318,6 +331,7 @@ TcpSocket_node.prototype.listen = function (address, port, callback) {
   this.connection = this.net.createServer();
   this.callback = callback;
   this.state = TcpSocket_node.state.BINDING;
+  TcpSocket_node.connectionState[this.id] = this.state;
 
   this.connection.on('error', this.onError.bind(this));
   this.connection.on('listening', this.onConnect.bind(this, undefined));
@@ -328,11 +342,10 @@ TcpSocket_node.prototype.listen = function (address, port, callback) {
 };
 
 TcpSocket_node.prototype.onAccept = function (connection) {
-  var id = TcpSocket_node.unboundId += 1;
-  TcpSocket_node.unbound[id] = connection;
+  TcpSocket_node.unbound[this.id] = connection;
 
   this.dispatchEvent('onConnection', {
-    'socket': id,
+    'socket': this.id,
     'host': connection.remoteAddress,
     'port': connection.remotePort
   });
@@ -349,13 +362,14 @@ TcpSocket_node.prototype.close = function (continuation) {
   if (this.connection) {
     if (this.state === TcpSocket_node.state.BINDING ||
         this.state === TcpSocket_node.state.LISTENING) {
-      this.connection.close();
+      this.connection.close(continuation);
     } else {
       this.connection.destroy();
+      continuation();
     }
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
-    continuation();
+    TcpSocket_node.connectionState[this.id] = this.state;
   } else {
     continuation(undefined, {
       "errcode": "SOCKET_CLOSED",
