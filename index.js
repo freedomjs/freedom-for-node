@@ -1,10 +1,11 @@
-/*jslint node:true */
+/* jslint node:true */
 /*
  * freedom.js Node runtime
  */
 
 'use strict';
 var resolvers = [];
+var crypto = require('./lib/fills').crypto;
 var websocket = require('freedom/providers/core/core.websocket');
 var xhr = require('freedom/providers/core/core.xhr');
 websocket.setSocket(require('ws'), true);
