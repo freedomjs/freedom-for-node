@@ -28,7 +28,7 @@
   "dependencies": {
     "es5-shim": "^4.1.10",
     "es6-promise": "^2.3.0",
-    "freedom": "~0.6.25",
+    "freedom": "~0.6.26",
     "glob": "~5.0.14",
     "grunt-contrib-jshint": "^0.11.2",
     "intl": "^1.0.0",
@@ -41,6 +41,6 @@
     "xhr2": "~0.1.2"
   },
   "peerDependencies": {
-    "freedom": "~0.6.25"
+    "freedom": "~0.6.26"
   }
 }
