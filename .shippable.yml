@@ -12,4 +12,4 @@ notifications:
 install:
   - "shippable_retry npm install"
 script:
-  - "grunt test"
+  - "grunt test --verbose"
