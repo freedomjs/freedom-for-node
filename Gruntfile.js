@@ -4,6 +4,11 @@
  */
 module.exports = function (grunt) {
   'use strict';
+  require('time-grunt')(grunt);
+  require('jit-grunt')(grunt, {
+    'npm-publish': 'grunt-npm'
+  });
+
   grunt.initConfig({
     pkg: grunt.file.readJSON('package.json'),
     jshint: {
@@ -15,8 +20,11 @@ module.exports = function (grunt) {
         jshintrc: true
       }
     },
-    jasmine_node: {
-      integration: ['spec']
+    jasmine_nodejs: {
+      integration: {
+        specs: ['spec/*.spec.js'],
+        helpers: ['spec/helper/**']
+      }
     },
     bump: {
       options: {
@@ -55,15 +63,9 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-jasmine-node2');
-  grunt.loadNpmTasks('grunt-npm');
-  grunt.loadNpmTasks('grunt-bump');
-  grunt.loadNpmTasks('grunt-prompt');
-
   grunt.registerTask('test', [
     'jshint',
-    'jasmine_node'
+    'jasmine_nodejs'
   ]);
   
   grunt.registerTask('release', function (arg) {
