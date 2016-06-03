@@ -10,15 +10,17 @@ var websocket = require('freedom/providers/core/core.websocket');
 var xhr = require('freedom/providers/core/core.xhr');
 websocket.setSocket(require('ws'), true);
 xhr.setImpl(require('xhr2'));
-var rtcpeer = require('freedom/providers/core/core.rtcpeerconnection.js');
-rtcpeer.setImpl(require('wrtc'));
+var wrtc = require('wrtc');
+var rtcpeer = require('freedom/providers/core/core.rtcpeerconnection');
+rtcpeer.setImpl(wrtc);
+var peerconnection = require('freedom/providers/core/core.peerconnection');
+peerconnection.setImpl(wrtc);
 
 var providers = [
   require('freedom/providers/core/core.unprivileged'),
   require('freedom/providers/core/core.echo'),
   require('freedom/providers/core/core.console'),
   require('freedom/providers/core/core.crypto'),
-  require('freedom/providers/core/core.peerconnection'),
   require('./providers/core.storage'),
   require('./providers/core.tcpsocket'),
   require('./providers/core.udpsocket'),
@@ -27,6 +29,7 @@ var providers = [
   websocket,
   xhr,
   rtcpeer,
+  peerconnection,
   require('freedom/providers/core/core.rtcdatachannel.js')
 ];
 
