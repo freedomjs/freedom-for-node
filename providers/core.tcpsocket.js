@@ -50,6 +50,10 @@ TcpSocket_node.state = {
  * @param {Function} callback Function to call after completion or error.
  */
 TcpSocket_node.prototype.write = function (data, callback) {
+  console.log("CALLING WRITE!!");
+  console.info(data);
+  console.info(typeof data);
+  console.info(data.byteLength);
   if (this.state !== TcpSocket_node.state.CONNECTED) {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
@@ -58,6 +62,7 @@ TcpSocket_node.prototype.write = function (data, callback) {
     return;
   }
   var buffer = new Buffer(new Uint8Array(data));
+  console.info(buffer);
   this.connection.write(buffer, 'utf8', callback);
 };
 
@@ -170,6 +175,7 @@ TcpSocket_node.prototype.secure = function (callback) {
  * @param {Function} cb Function to call with completion or error.
  */
 TcpSocket_node.prototype.connect = function (hostname, port, cb) {
+  console.log("CONNECTING");
   if (this.state !== TcpSocket_node.state.NEW) {
     return cb(undefined, {
       "errcode": "ALREADY_CONNECTED",
@@ -306,7 +312,11 @@ TcpSocket_node.ERROR_MAP = {
  * @private
  */
 TcpSocket_node.prototype.onData = function (data) {
+  console.info("ON DATA!");
+  console.info(data);
+  console.info(typeof data);
   var arrayBuffer = new Uint8Array(data).buffer;
+  console.info(arrayBuffer.byteLength);
   this.dispatchEvent('onData', {
     data: arrayBuffer
   });
@@ -320,6 +330,7 @@ TcpSocket_node.prototype.onData = function (data) {
  * @param {Function} callback Callback to call when listening has occured.
  */
 TcpSocket_node.prototype.listen = function (address, port, callback) {
+  console.log("LISTENING");
   if (this.state !== TcpSocket_node.state.NEW) {
     callback(undefined, {
       "errcode": "ALREADY_CONNECTED",
