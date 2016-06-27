@@ -50,15 +50,16 @@ TcpSocket_node.state = {
  * @param {Function} callback Function to call after completion or error.
  */
 TcpSocket_node.prototype.write = function (data, callback) {
-  if (this.state !== TcpSocket_node.state.CONNECTED) {
+  if (this.state === TcpSocket_node.state.CONNECTED ||
+      this.state === TcpSocket_node.state.LISTENING) {
+    var buffer = new Buffer(new Uint8Array(data));
+    this.connection.write(buffer, 'utf8', callback);
+  } else {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
       "message": "Cannot Write on Closed Socket"
     });
-    return;
   }
-  var buffer = new Buffer(new Uint8Array(data));
-  this.connection.write(buffer, 'utf8', callback);
 };
 
 /**
@@ -67,15 +68,16 @@ TcpSocket_node.prototype.write = function (data, callback) {
  * @param {Function} callback Function to call after pausing the socket.
  */
 TcpSocket_node.prototype.pause = function (callback) {
-  if (this.state !== TcpSocket_node.state.CONNECTED) {
+  if (this.state === TcpSocket_node.state.CONNECTED ||
+      this.state === TcpSocket_node.state.LISTENING) {
+    this.connection.pause();
+    callback();
+  } else {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
       "message": "Cannot pause a closed socket"
     });
-    return;
   }
-  this.connection.pause();
-  callback();
 };
 
 /**
@@ -84,15 +86,16 @@ TcpSocket_node.prototype.pause = function (callback) {
  * @param {Function} callback Function to call after resuming the socket.
  */
 TcpSocket_node.prototype.resume = function (callback) {
-  if (this.state !== TcpSocket_node.state.CONNECTED) {
+  if (this.state === TcpSocket_node.state.CONNECTED ||
+      this.state === TcpSocket_node.state.LISTENING) {
+    this.connection.resume();
+    callback();
+  } else {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
       "message": "Cannot resume a closed socket"
     });
-    return;
   }
-  this.connection.resume();
-  callback();
 };
 
 /**
@@ -133,33 +136,34 @@ TcpSocket_node.prototype.prepareSecure = function (callback) {
  * @param {Function} callback function to call on completion or error.
  */
 TcpSocket_node.prototype.secure = function (callback) {
-  if (this.state !== TcpSocket_node.state.CONNECTED) {
+  if (this.state === TcpSocket_node.state.CONNECTED ||
+      this.state === TcpSocket_node.state.LISTENING) {
+    var cleartext = this.tlsconnect({
+      socket: this.connection,
+      rejectUnauthorized: true,
+      requestCert: true,
+      isServer: false,
+      servername: this.servername
+    }, function () {
+      if (!cleartext.authorized) {
+        this.connection.destroy();
+        this.state = TcpSocket_node.state.CLOSED;
+        TcpSocket_node.connectionState[this.id] = this.state;
+        callback(undefined, {
+          "errcode": "CONNECTION_RESET",
+          "message": "Failed to secure socket."
+        });
+      } else {
+        this.upgradeConnection(cleartext);
+        callback();
+      }
+    }.bind(this));
+  } else {
     callback(undefined, {
       "errcode": "NOT_CONNECTED",
       "message": "Cannot secure closed socket"
     });
-    return;
   }
-  var cleartext = this.tlsconnect({
-    socket: this.connection,
-    rejectUnauthorized: true,
-    requestCert: true,
-    isServer: false,
-    servername: this.servername
-  }, function () {
-    if (!cleartext.authorized) {
-      this.connection.destroy();
-      this.state = TcpSocket_node.state.CLOSED;
-      TcpSocket_node.connectionState[this.id] = this.state;
-      callback(undefined, {
-        "errcode": "CONNECTION_RESET",
-        "message": "Failed to secure socket."
-      });
-    } else {
-      this.upgradeConnection(cleartext);
-      callback();
-    }
-  }.bind(this));
 };
 
 /**
