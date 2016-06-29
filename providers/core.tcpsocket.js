@@ -366,15 +366,23 @@ TcpSocket_node.prototype.close = function (continuation) {
   if (this.connection) {
     if (this.state === TcpSocket_node.state.BINDING ||
         this.state === TcpSocket_node.state.LISTENING) {
-      this.connection.end();
-      continuation();
+      try {
+        // Close server socket
+        this.connection.close();
+      } catch(e) {
+      }
+      try {
+        // Close client socket
+        this.connection.end();
+      } catch(e) {
+      }
     } else {
       this.connection.destroy();
-      continuation();
     }
     delete this.connection;
     this.state = TcpSocket_node.state.CLOSED;
     TcpSocket_node.connectionState[this.id] = this.state;
+    continuation();
   } else {
     continuation(undefined, {
       "errcode": "SOCKET_CLOSED",
