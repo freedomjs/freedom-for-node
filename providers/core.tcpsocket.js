@@ -366,7 +366,8 @@ TcpSocket_node.prototype.close = function (continuation) {
   if (this.connection) {
     if (this.state === TcpSocket_node.state.BINDING ||
         this.state === TcpSocket_node.state.LISTENING) {
-      this.connection.close(continuation);
+      this.connection.end();
+      continuation();
     } else {
       this.connection.destroy();
       continuation();
