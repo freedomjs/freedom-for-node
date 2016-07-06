@@ -50,8 +50,7 @@ TcpSocket_node.state = {
  * @param {Function} callback Function to call after completion or error.
  */
 TcpSocket_node.prototype.write = function (data, callback) {
-  if (this.state === TcpSocket_node.state.CONNECTED ||
-      this.state === TcpSocket_node.state.LISTENING) {
+  if (this.state === TcpSocket_node.state.CONNECTED) {
     var buffer = new Buffer(new Uint8Array(data));
     this.connection.write(buffer, 'utf8', callback);
   } else {
@@ -68,8 +67,7 @@ TcpSocket_node.prototype.write = function (data, callback) {
  * @param {Function} callback Function to call after pausing the socket.
  */
 TcpSocket_node.prototype.pause = function (callback) {
-  if (this.state === TcpSocket_node.state.CONNECTED ||
-      this.state === TcpSocket_node.state.LISTENING) {
+  if (this.state === TcpSocket_node.state.CONNECTED) {
     this.connection.pause();
     callback();
   } else {
@@ -86,8 +84,7 @@ TcpSocket_node.prototype.pause = function (callback) {
  * @param {Function} callback Function to call after resuming the socket.
  */
 TcpSocket_node.prototype.resume = function (callback) {
-  if (this.state === TcpSocket_node.state.CONNECTED ||
-      this.state === TcpSocket_node.state.LISTENING) {
+  if (this.state === TcpSocket_node.state.CONNECTED) {
     this.connection.resume();
     callback();
   } else {
@@ -136,8 +133,7 @@ TcpSocket_node.prototype.prepareSecure = function (callback) {
  * @param {Function} callback function to call on completion or error.
  */
 TcpSocket_node.prototype.secure = function (callback) {
-  if (this.state === TcpSocket_node.state.CONNECTED ||
-      this.state === TcpSocket_node.state.LISTENING) {
+  if (this.state === TcpSocket_node.state.CONNECTED) {
     var cleartext = this.tlsconnect({
       socket: this.connection,
       rejectUnauthorized: true,
@@ -347,6 +343,7 @@ TcpSocket_node.prototype.listen = function (address, port, callback) {
 
 TcpSocket_node.prototype.onAccept = function (connection) {
   TcpSocket_node.unbound[this.id] = connection;
+  TcpSocket_node.connectionState[this.id] = TcpSocket_node.state.CONNECTED;
 
   this.dispatchEvent('onConnection', {
     'socket': this.id,
@@ -367,14 +364,11 @@ TcpSocket_node.prototype.close = function (continuation) {
     if (this.state === TcpSocket_node.state.BINDING ||
         this.state === TcpSocket_node.state.LISTENING) {
       try {
-        // Close server socket
-        this.connection.close();
-      } catch(e) {
-      }
-      try {
         // Close client socket
         this.connection.end();
       } catch(e) {
+        // Close server socket
+        this.connection.close();
       }
     } else {
       this.connection.destroy();
