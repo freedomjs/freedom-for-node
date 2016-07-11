@@ -10,9 +10,6 @@ var websocket = require('freedom/providers/core/core.websocket');
 var xhr = require('freedom/providers/core/core.xhr');
 websocket.setSocket(require('ws'), true);
 xhr.setImpl(require('xhr2'));
-var rtcpeer = require('freedom/providers/core/core.rtcpeerconnection.js');
-rtcpeer.setImpl(require('wrtc'));
-
 var providers = [
   require('freedom/providers/core/core.unprivileged'),
   require('freedom/providers/core/core.echo'),
@@ -26,9 +23,14 @@ var providers = [
   require('freedom/providers/core/core.oauth'),
   websocket,
   xhr,
-  rtcpeer,
   require('freedom/providers/core/core.rtcdatachannel.js')
 ];
+if (process.platform !== 'darwin') {
+  // webrtc doesn't build on osx right now
+  var rtcpeer = require('freedom/providers/core/core.rtcpeerconnection.js');
+  rtcpeer.setImpl(require('wrtc'));
+  providers.push(rtcpeer);
+}
 
 if (!module.parent) {
   require('./lib/modulecontext');
