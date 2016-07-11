@@ -360,17 +360,18 @@ TcpSocket_node.prototype.onAccept = function (connection) {
  * @param {Function} continuation Function to call once socket is disconnected.
  */
 TcpSocket_node.prototype.close = function (continuation) {
-  if (this.connection) {
-    if (this.state === TcpSocket_node.state.BINDING ||
-        this.state === TcpSocket_node.state.LISTENING) {
-      try {
-        // Close client socket
-        this.connection.end();
-      } catch(e) {
+  if (this.connection && this.state !== TcpSocket_node.state.CLOSED) {
+    try {
+      if (this.state === TcpSocket_node.state.LISTENING) {
         // Close server socket
         this.connection.close();
+      } else {
+        // Close client socket
+        this.connection.end();
       }
-    } else {
+    } catch(e) {
+      // Definitely close one way or another
+      console.warn("Had to destroy socket " + this.id);
       this.connection.destroy();
     }
     delete this.connection;
