@@ -25,11 +25,13 @@ var providers = [
   xhr,
   require('freedom/providers/core/core.rtcdatachannel.js')
 ];
-if (process.platform !== 'darwin') {
+try {
   // webrtc doesn't build on osx right now
   var rtcpeer = require('freedom/providers/core/core.rtcpeerconnection.js');
   rtcpeer.setImpl(require('wrtc'));
   providers.push(rtcpeer);
+} catch(e) {
+  console.warn('Failed to load wrtc, will not have WebRTC support');
 }
 
 if (!module.parent) {
