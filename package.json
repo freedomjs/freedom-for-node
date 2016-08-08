@@ -40,7 +40,7 @@
     "tls-connect": "^0.2.2"
   },
   "optionalDependencies": {
-    "wrtc": "0.0.60",
+    "wrtc": "git://github.com/soycode/node-webrtc.git#develop",
     "ws": "~1.1.1",
     "xhr2": "~0.1.3"
   },
