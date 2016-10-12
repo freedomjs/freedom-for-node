@@ -31,7 +31,7 @@
   "dependencies": {
     "es5-shim": "^4.5.9",
     "es6-promise": "^4.0.5",
-    "freedom": "~0.6.35",
+    "freedom": "~0.6.36",
     "glob": "~7.1.0",
     "grunt-contrib-jshint": "^1.0.0",
     "intl": "^1.2.5",
@@ -40,11 +40,11 @@
     "tls-connect": "^0.2.2"
   },
   "optionalDependencies": {
-    "wrtc": "0.0.61",
+    "wrtc": "0.0.60",
     "ws": "~1.1.1",
     "xhr2": "~0.1.3"
   },
   "peerDependencies": {
-    "freedom": "~0.6.35"
+    "freedom": "~0.6.36"
   }
 }
