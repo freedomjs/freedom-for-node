@@ -20,10 +20,10 @@ var setup = function () {
 // Social
 describe("integration-single: social.loopback.json", require("freedom/spec/providers/social/social.single.integration.src")
          .bind(this, require("../index").freedom, "../node_modules/freedom/providers/social/loopback/social.loopback.json", {}));
-describe("integration-single: social.ws.json", require("freedom/spec/providers/social/social.single.integration.src")
-         .bind(this, require("../index").freedom, "../node_modules/freedom/providers/social/websocket-server/social.ws.json", {}));
-describe("integration-double: social.ws.json", require("freedom/spec/providers/social/social.double.integration.src")
-         .bind(this, require("../index").freedom, "../node_modules/freedom/providers/social/websocket-server/social.ws.json", {}));
+xdescribe("integration-single: social.ws.json", require("freedom/spec/providers/social/social.single.integration.src")
+          .bind(this, require("../index").freedom, "../node_modules/freedom/providers/social/websocket-server/social.ws.json", {}));
+xdescribe("integration-double: social.ws.json", require("freedom/spec/providers/social/social.double.integration.src")
+          .bind(this, require("../index").freedom, "../node_modules/freedom/providers/social/websocket-server/social.ws.json", {}));
 
 // Storage
 describe("integration: storage.isolated.json", require("freedom/spec/providers/storage/storage.integration.src")
